@@ -1,0 +1,489 @@
+const ANIMAL_MAP_BINGO = { 1:{n:"Carnero",i:"\u{1F40F}"},2:{n:"Toro",i:"\u{1F402}"},3:{n:"Ciempiés",i:"\u{1F41B}"},4:{n:"Alacrán",i:"\u{1F982}"},5:{n:"León",i:"\u{1F981}"},6:{n:"Rana",i:"\u{1F438}"},7:{n:"Perico",i:"\u{1F99C}"},8:{n:"Ratón",i:"\u{1F401}"},9:{n:"Águila",i:"\u{1F985}"},10:{n:"Tigre",i:"\u{1F405}"},11:{n:"Gato",i:"\u{1F408}"},12:{n:"Caballo",i:"\u{1F40E}"},13:{n:"Mono",i:"\u{1F412}"},14:{n:"Paloma",i:"\u{1F54A}"},15:{n:"Zorro",i:"\u{1F98A}"},16:{n:"Oso",i:"\u{1F43B}"},17:{n:"Pavo",i:"\u{1F983}"},18:{n:"Burro",i:"\u{1F434}"},19:{n:"Chivo",i:"\u{1F410}"},20:{n:"Cochino",i:"\u{1F416}"},21:{n:"Gallo",i:"\u{1F413}"},22:{n:"Camello",i:"\u{1F42A}"},23:{n:"Cebra",i:"\u{1F993}"},24:{n:"Iguana",i:"\u{1F98E}"},25:{n:"Gallina",i:"\u{1F414}"} };
+const ANIMAL_MAP_LOTTO = { '0':{n:"Delfín",i:"\u{1F42C}"},'00':{n:"Ballena",i:"\u{1F433}"},'1':{n:"Carnero",i:"\u{1F40F}"},'2':{n:"Toro",i:"\u{1F402}"},'3':{n:"Ciempiés",i:"\u{1F41B}"},'4':{n:"Alacrán",i:"\u{1F982}"},'5':{n:"León",i:"\u{1F981}"},'6':{n:"Rana",i:"\u{1F438}"},'7':{n:"Perico",i:"\u{1F99C}"},'8':{n:"Ratón",i:"\u{1F401}"},'9':{n:"Águila",i:"\u{1F985}"},'10':{n:"Tigre",i:"\u{1F405}"},'11':{n:"Gato",i:"\u{1F408}"},'12':{n:"Caballo",i:"\u{1F40E}"},'13':{n:"Mono",i:"\u{1F412}"},'14':{n:"Paloma",i:"\u{1F54A}"},'15':{n:"Zorro",i:"\u{1F98A}"},'16':{n:"Oso",i:"\u{1F43B}"},'17':{n:"Pavo",i:"\u{1F983}"},'18':{n:"Burro",i:"\u{1F434}"},'19':{n:"Chivo",i:"\u{1F410}"},'20':{n:"Cochino",i:"\u{1F416}"},'21':{n:"Gallo",i:"\u{1F413}"},'22':{n:"Camello",i:"\u{1F42A}"},'23':{n:"Cebra",i:"\u{1F993}"},'24':{n:"Iguana",i:"\u{1F98E}"},'25':{n:"Gallina",i:"\u{1F414}"},'26':{n:"Vaca",i:"\u{1F404}"},'27':{n:"Perro",i:"\u{1F415}"},'28':{n:"Zamuro",i:"\u{1F985}"},'29':{n:"Elefante",i:"\u{1F418}"},'30':{n:"Caimán",i:"\u{1F40A}"},'31':{n:"Lapa",i:"\u{1F9AB}"},'32':{n:"Ardilla",i:"\u{1F43F}"},'33':{n:"Pescado",i:"\u{1F41F}"},'34':{n:"Venado",i:"\u{1F41F}"},'35':{n:"Jirafa",i:"\u{1F992}"},'36':{n:"Culebra",i:"\u{1F40D}"},'37':{n:"Tortuga",i:"\u{1F422}"}, '38':{n:"Búfalo",i:"\u{1F403}"}, '39':{n:"Lechuza",i:"\u{1F989}"}, '40':{n:"Avispa",i:"\u{1F41D}"},'41':{n:"Canguro",i:"\u{1F998}"}, '42':{n:"Tucán",i:"\u{1F99C}"}, '43':{n:"Mariposa",i:"\u{1F98B}"}, '44':{n:"Chigüire",i:"\u{1F9AB}"},'45':{n:"Garza",i:"\u{1F9A9}"}, '46':{n:"Puma",i:"\u{1F408}"}, '47':{n:"Pavo Real",i:"\u{1F99A}"}, '48':{n:"Puercoespín",i:"\u{1F994}"},'49':{n:"Pereza",i:"\u{1F9A5}"}, '50':{n:"Canario",i:"\u{1F424}"}, '51':{n:"Pelícano",i:"\u{1F9A4}"}, '52':{n:"Pulpo",i:"\u{1F419}"},'53':{n:"Caracol",i:"\u{1F40C}"}, '54':{n:"Grillo",i:"\u{1F997}"}, '55':{n:"Oso Hormig.",i:"\u{1F9A1}"}, '56':{n:"Tiburón",i:"\u{1F988}"},'57':{n:"Pato",i:"\u{1F986}"}, '58':{n:"Hormiga",i:"\u{1F41C}"}, '59':{n:"Pantera",i:"\u{1F408}\u{200D}\u{2B1B}"}, '60':{n:"Camaleón",i:"\u{1F98E}"},'61':{n:"Panda",i:"\u{1F43C}"}, '62':{n:"Cachicamo",i:"\u{1F993}"}, '63':{n:"Cangrejo",i:"\u{1F980}"}, '64':{n:"Gavilán",i:"\u{1F985}"},'65':{n:"Araña",i:"\u{1F577}"}, '66':{n:"Lobo",i:"\u{1F43A}"}, '67':{n:"Avestruz",i:"\u{1F426}"}, '68':{n:"Jaguar",i:"\u{1F406}"},'69':{n:"Conejo",i:"\u{1F407}"}, '70':{n:"Bisonte",i:"\u{1F9AC}"}, '71':{n:"Guacamaya",i:"\u{1F99C}"}, '72':{n:"Gorila",i:"\u{1F98D}"},'73':{n:"Hipopótamo",i:"\u{1F99B}"}, '74':{n:"Turpial",i:"\u{1F426}"}, '75':{n:"Guácharo",i:"\u{1F987}"} };
+
+const firebaseConfig = { apiKey: "AIzaSyDVPFhi9Vwk5DRhMOVqHPArppe-1gG1Gbw", authDomain: "bingo-nuevo.firebaseapp.com", databaseURL: "https://bingo-nuevo-default-rtdb.firebaseio.com", projectId: "bingo-nuevo", storageBucket: "bingo-nuevo-firebasestorage.app", messagingSenderId: "519445444132", appId: "1:519445444132:web:1dd8327222a6472f654ab1" };
+firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.database();
+
+let userBalance=0, serverTimeOffset=0, currentCardPrice=0, currentDate=null, globalLimit=0, totalSold=0;
+let purchaseState = {totalQty:0, currentCardIndex:0, draftCards:[]}, currentSelection=new Set();
+let selectedLotto=null, selectedLottoAnimals = new Set(), selectedPrimeritoAnimal=null;
+let currentDateStr = "", miniGameStatus = 'closed', currentLimits = { general: 700, guacharo: 350 };
+let isProcessing = false;
+
+let activeAnimalitosRef = null;
+let activeTripletasRef = null;
+let isTripletaMode = false;
+let tripletaConfig = { cost: 300, reward: 100000 };
+
+let isDupletaMode = false;
+let dupletaConfig = { cost: 300, reward: 38000 };
+let activeDupletasRef = null;
+let dailyResults = {}; 
+
+window.onload=()=>{
+    auth.onAuthStateChanged(u=>{ 
+        document.getElementById('auth-area').classList.toggle('hidden', !!u);
+        if(u) {
+             document.getElementById('logged-in-area').classList.remove('hidden');
+             document.getElementById('logged-in-area').style.display = 'block';
+             document.getElementById('nav-logout-btn').classList.remove('hidden');
+             init();
+        } else {
+             document.getElementById('logged-in-area').classList.add('hidden');
+             document.getElementById('logged-in-area').style.display = 'none';
+             document.getElementById('nav-logout-btn').classList.add('hidden');
+        }
+    });
+    
+    document.getElementById('auth-form').onsubmit=async(e)=>{
+        e.preventDefault(); 
+        const p=document.getElementById('auth-phone').value.replace(/\D/g,''), pw=document.getElementById('auth-password').value, n=document.getElementById('auth-name').value;
+        const email = p+"@bingotexier.com";
+        try {
+            if(!document.getElementById('auth-name').classList.contains('hidden')){
+                const u=await auth.createUserWithEmailAndPassword(email,pw); await u.user.updateProfile({displayName:n});
+                await db.ref(`users/${u.user.uid}`).set({name:n, phone:p, balance:0});
+            } else await auth.signInWithEmailAndPassword(email,pw);
+        } catch(e){ document.getElementById('auth-error').textContent=e.message; document.getElementById('auth-error').classList.remove('hidden'); }
+    };
+    
+    document.getElementById('toggle-auth-mode').onclick=()=>{ const n=document.getElementById('auth-name'); n.classList.toggle('hidden'); document.getElementById('auth-title').textContent=n.classList.contains('hidden')?'Iniciar Sesión':'Registro'; document.getElementById('auth-submit-btn').textContent=n.classList.contains('hidden')?'Acceder':'Registrarme'; };
+    
+    document.getElementById('recharge-btn').onclick=()=>window.open("https://wa.me/584220153364?text=Quiero%20recargar%20saldo", '_blank');
+    document.getElementById('withdraw-btn').onclick=()=> {
+        document.getElementById('withdraw-form-area').classList.remove('hidden');
+        document.getElementById('withdraw-form-area').style.display = 'flex';
+    };
+    document.getElementById('withdraw-form').onsubmit=async(e)=>{
+        e.preventDefault(); const a=parseFloat(document.getElementById('withdraw-amount').value);
+        if(a>userBalance) return alert("Saldo insuficiente");
+        const d = {amount:a, tlf:document.getElementById('w-tlf').value, cedula:document.getElementById('w-cedula').value, banco:document.getElementById('w-banco').value, uid:auth.currentUser.uid, name:auth.currentUser.displayName, userPhone:auth.currentUser.email.split('@')[0], status:'PENDING', timestamp:firebase.database.ServerValue.TIMESTAMP};
+        await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>(c||0)-a);
+        await db.ref(`users/${auth.currentUser.uid}/balance_pending_withdrawal`).transaction(c=>(c||0)+a);
+        await db.ref('withdrawal_requests').push(d); alert("Enviado"); document.getElementById('withdraw-form-area').style.display='none';
+    };
+
+    initTicker();
+    db.ref('config/tripleta').on('value', s => { if(s.exists()) tripletaConfig = s.val(); });
+};
+
+function initTicker() {
+    const t = document.getElementById('ticker-content');
+    if(t){
+        const names = ["Carlos R.", "Maria G.", "Jose L.", "Ana P.", "Luis M.", "Elena S."];
+        const actions = [{ label: "Gan\u00F3", min: 400, max: 2500, icon: "fas fa-ticket-alt" }, { label: "Tripleta", min: 100000, max: 100000, icon: "fas fa-layer-group" }];
+        let h = "";
+        for(let i=0; i<30; i++){
+            const name = names[Math.floor(Math.random() * names.length)];
+            const act = actions[Math.floor(Math.random() * actions.length)];
+            const amount = Math.floor(Math.random() * (act.max - act.min + 1)) + act.min;
+            h += `<div class="ticker__item"><i class="${act.icon}"></i> ${name} <span class="ticker__action">${act.label}</span>: <span class="ticker__amount">${amount.toLocaleString('es-VE')} Bs</span></div>`;
+        }
+        t.innerHTML = h;
+    }
+}
+
+function init() {
+    if(!auth.currentUser) return;
+    document.getElementById('user-display-name').textContent = auth.currentUser.displayName;
+    db.ref(`users/${auth.currentUser.uid}/balance`).on('value',s=>{userBalance=s.val()||0; document.getElementById('balance-display').textContent=`Bs ${userBalance.toFixed(2)}`;});
+    db.ref('config/limits').on('value', s => { if(s.exists()) currentLimits = s.val(); });
+    syncTime();
+    startCountdown();
+
+    db.ref('draw_status').on('value', s=>{ const d = s.val() || {}; currentDate = d.date; miniGameStatus = d.minigame_status; if(d.status==='active') { db.ref(`draw_details/${d.date}`).once('value', v=>{ const val=v.val()||{}; currentCardPrice=val.price||0; globalLimit=val.limit||0; if(document.getElementById('starter-card-price')) document.getElementById('starter-card-price').textContent=currentCardPrice.toFixed(2); updateUrgency(); }); } });
+    db.ref('bingo_aprobados_estelar').on('value',s=>{ let c=0; s.forEach(x=>{if(x.val().date===currentDate)c++}); totalSold=c; updateUrgency(); });
+    const pg=document.getElementById('primerito-grid'); pg.innerHTML=''; for(let i=1;i<=25;i++){ const a=ANIMAL_MAP_BINGO[i]; const b=document.createElement('div'); b.className="select-animal-btn"; b.innerHTML=`<span class="emoji-font">${a.i}</span>${i}-${a.n}`; b.onclick=()=>{if(miniGameStatus==='closed')return; document.querySelectorAll('#primerito-grid div').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedPrimeritoAnimal=i; askPrimeritoAmount(i);}; pg.appendChild(b); }
+}
+
+function startCountdown() {
+    setInterval(() => {
+        const now = new Date(); let target = new Date(); target.setHours(20, 0, 0, 0); 
+        if (now > target) target.setDate(target.getDate() + 1); 
+        const diff = target - now;
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById('countdown-timer').textContent = `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    }, 1000);
+}
+
+async function syncTime() { try { const r=await fetch('https://worldtimeapi.org/api/timezone/America/Caracas'); const d=await r.json(); serverTimeOffset=new Date(d.datetime).getTime()-Date.now(); } catch(e){} updateGameDate(); }
+
+function updateGameDate() { 
+    const now = new Date(Date.now() + serverTimeOffset); 
+    if(now.getHours() >= 20) now.setDate(now.getDate() + 1); 
+    currentDateStr = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`; 
+    document.getElementById('game-date-display').textContent = currentDateStr; 
+    
+    // LECTURA DE RESULTADOS PARA CONTADOR DE ACIERTOS
+    db.ref(`results_log/${currentDateStr}`).on('value', s => {
+        dailyResults = s.val() || {};
+        loadMyDailyBets(); 
+    });
+    loadMyDailyBets(); 
+}
+
+function switchMode(t){ 
+    ['section-bingo','section-animalitos'].forEach(x=>{
+        document.getElementById(x).classList.add('hidden');
+        document.getElementById(x).style.display = 'none';
+    }); 
+    document.getElementById(`section-${t}`).classList.remove('hidden'); 
+    document.getElementById(`section-${t}`).style.display = 'block';
+    document.getElementById('game-selector').classList.add('hidden'); 
+}
+
+function updateUrgency() { 
+    const bar = document.getElementById('urgency-bar-fixed'); const txt = document.getElementById('urgency-text'); 
+    if(currentCardPrice > 0) { 
+        bar.classList.remove('hidden');
+        let remaining = globalLimit - totalSold; if (remaining < 0) remaining = 0;
+        txt.textContent = (remaining < 50 && globalLimit > 0) ? `\u00A1SOLO ${remaining} DISPONIBLES!` : `${totalSold}/${globalLimit} VENDIDOS`;
+    } else { bar.classList.add('hidden'); } 
+}
+
+window.openTripletaModal = () => {
+    const modal = document.getElementById('modal-tripletas');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex'; 
+    loadMyDailyBets(); 
+}
+
+window.openDupletaModal = () => {
+    const modal = document.getElementById('modal-dupletas');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex'; 
+    loadMyDailyBets(); 
+}
+
+if(document.getElementById('start-purchase-btn')) document.getElementById('start-purchase-btn').onclick=()=>{document.getElementById('chat-flow-area').classList.remove('hidden'); document.getElementById('bot-message-display').innerHTML="¿Cuántos cartones?"; document.getElementById('quantity-selector-area').classList.remove('hidden'); const q=document.getElementById('quantity-grid'); q.innerHTML=''; for(let i=1;i<=15;i++){ const b=document.createElement('div'); b.className="qty-btn"; b.textContent=i; b.onclick=()=>startBingoSel(i); q.appendChild(b); }}
+if(document.getElementById('start-primerito-btn')) document.getElementById('start-primerito-btn').onclick=()=>{document.getElementById('chat-flow-area').classList.remove('hidden'); document.getElementById('primerito-selector-area').classList.remove('hidden');}
+
+function startBingoSel(n){ purchaseState={totalQty:n, currentCardIndex:0, draftCards:[]}; document.getElementById('quantity-selector-area').classList.add('hidden'); document.getElementById('animal-selector-area').classList.remove('hidden'); renderBingoSel(); }
+function renderBingoSel(){ currentSelection.clear(); document.getElementById('current-card-num').textContent=purchaseState.currentCardIndex+1; document.getElementById('confirm-card-btn').disabled=true; document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent="0/15"; const g=document.getElementById('animal-selection-grid'); g.innerHTML=''; for(let i=1; i<=25; i++) { const b=document.createElement('div'); b.className="select-animal-btn"; b.innerHTML = `<span class="emoji-font">${ANIMAL_MAP_BINGO[i].i}</span>${i}-${ANIMAL_MAP_BINGO[i].n}`; b.onclick=()=>{ if(currentSelection.has(i)) { currentSelection.delete(i); b.classList.remove('selected'); } else if(currentSelection.size<15) { currentSelection.add(i); b.classList.add('selected'); } const done = currentSelection.size === 15; document.getElementById('confirm-card-btn').disabled = !done; if(done) document.getElementById('confirm-card-btn').classList.remove('opacity-50', 'cursor-not-allowed'); else document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent = currentSelection.size + "/15"; }; g.appendChild(b); } }
+window.fillRandomAnimals=()=>{ currentSelection.clear(); Array.from({length:25},(_,i)=>i+1).sort(()=>Math.random()-0.5).slice(0,15).forEach(x=>currentSelection.add(x)); const ds=document.getElementById('animal-selection-grid').children; for(let i=0;i<25;i++) if(currentSelection.has(i+1)) ds[i].classList.add('selected'); else ds[i].classList.remove('selected'); document.getElementById('selection-counter').textContent="15/15"; document.getElementById('confirm-card-btn').disabled=false; document.getElementById('confirm-card-btn').classList.remove('opacity-50'); }
+window.confirmCurrentCard=async()=>{ purchaseState.draftCards.push(Array.from(currentSelection).sort((a,b)=>a-b)); purchaseState.currentCardIndex++; if(purchaseState.currentCardIndex<purchaseState.totalQty) renderBingoSel(); else { const cost=purchaseState.totalQty*currentCardPrice; if(cost>userBalance) return alert("Saldo insuficiente"); await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>c-cost); const cards=purchaseState.draftCards.map(n=>({numbers:n, id:sha256(JSON.stringify(n)).substring(0,8)})); await Promise.all(cards.map(c=>db.ref('bingo_aprobados_estelar').push({numbers:c.numbers, id:c.id, uid:auth.currentUser.uid, date:currentDate, status:'APROBADO'}))); document.getElementById('bot-message-display').innerHTML = `\u2705 Listo. ${purchaseState.totalQty} cartones.`; setTimeout(() => document.getElementById('chat-flow-area').classList.add('hidden'), 3000); document.getElementById('my-cards-btn').click(); } }
+window.askPrimeritoAmount=(i)=>{document.getElementById('primerito-selector-area').classList.add('hidden'); document.getElementById('primerito-amount-area').classList.remove('hidden'); document.getElementById('primerito-bet-amount').focus();}
+window.confirmPrimeritoBet=async()=>{ const a=parseFloat(document.getElementById('primerito-bet-amount').value); if(a>userBalance)return alert("Saldo insuficiente"); await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>c-a); await db.ref(`bets_bingo_first/${currentDate}/${auth.currentUser.uid}`).push({animal:selectedPrimeritoAnimal, amount:a, status:'PENDING'}); document.getElementById('primerito-amount-area').classList.add('hidden'); document.getElementById('bot-message-display').innerHTML = `\u2705 Apuesta lista!`; setTimeout(()=>document.getElementById('chat-flow-area').classList.add('hidden'), 2000); document.getElementById('my-cards-btn').click(); }
+
+window.loadMyBingoHistory = () => {
+    document.getElementById('carton-display-container').classList.remove('hidden'); 
+    const listCards = document.getElementById('carton-list'); const listPrimerito = document.getElementById('primerito-list');
+    listCards.innerHTML=''; listPrimerito.innerHTML='';
+    
+    db.ref('bingo_aprobados_estelar').orderByChild('uid').equalTo(auth.currentUser.uid).once('value',s=>{
+        let found = false;
+        s.forEach(c=>{
+            if(c.val().date===currentDate){
+                found = true;
+                const gridHtml = c.val().numbers.map(n => {
+                    const animal = ANIMAL_MAP_BINGO[n];
+                    return `<div class='animal-cell'><span style='font-size:14px; display:block;'>${animal.i}</span>${n}</div>`;
+                }).join('');
+                const d=document.createElement('div');
+                d.className="bingo-card";
+                d.innerHTML=`<div class='text-center font-bold text-gray-700 mb-1'>ID: ${c.val().id}</div><div class='animal-grid'>${gridHtml}</div>`;
+                listCards.appendChild(d);
+            }
+        });
+        if(!found) document.getElementById('no-cards-msg').classList.remove('hidden'); else document.getElementById('no-cards-msg').classList.add('hidden');
+    });
+
+    db.ref(`bets_bingo_first/${currentDate}/${auth.currentUser.uid}`).once('value', s => { if(s.exists()){ s.forEach(betSnap => { const bet = betSnap.val(); const pDiv = document.createElement('div'); pDiv.className = "bg-blue-100 border-l-4 border-blue-500 p-2 rounded text-xs flex justify-between"; pDiv.innerHTML = `<span><b>EL PRIMERITO:</b> ${ANIMAL_MAP_BINGO[bet.animal].i} ${bet.animal}</span> <span>${bet.amount} Bs</span>`; listPrimerito.appendChild(pDiv); }); }});
+}
+
+window.toggleTripletaMode = () => {
+    isTripletaMode = !isTripletaMode;
+    isDupletaMode = false;
+
+    const btnTrip = document.getElementById('tripleta-toggle-btn');
+    const btnDup = document.getElementById('dupleta-toggle-btn');
+    
+    btnDup.classList.replace('bg-blue-600', 'bg-gray-400'); btnDup.classList.replace('hover:bg-blue-700', 'hover:bg-gray-500');
+    document.getElementById('dupleta-banner').classList.add('hidden');
+
+    if(isTripletaMode) {
+        btnTrip.classList.replace('bg-gray-400', 'bg-purple-600'); btnTrip.classList.replace('hover:bg-gray-500', 'hover:bg-purple-700');
+        document.getElementById('tripleta-banner').classList.remove('hidden'); 
+        document.getElementById('amount-input-container').classList.add('hidden'); 
+        document.getElementById('lottery-grid-container').classList.add('hidden');
+        document.getElementById('trip-price-disp').textContent = tripletaConfig.cost;
+        document.getElementById('trip-reward-disp').textContent = tripletaConfig.reward;
+        document.getElementById('selection-label').textContent = "SELECCIONA 3 ANIMALES:";
+        selectLottery('Lotto Activo', 0); 
+        document.getElementById('selected-lottery-title').textContent = "TRIPLETA (Todas las Loterías)";
+    } else {
+        btnTrip.classList.replace('bg-purple-600', 'bg-gray-400'); btnTrip.classList.replace('hover:bg-purple-700', 'hover:bg-gray-500');
+        document.getElementById('tripleta-banner').classList.add('hidden'); 
+        document.getElementById('amount-input-container').classList.remove('hidden'); 
+        document.getElementById('lottery-grid-container').classList.remove('hidden');
+        document.getElementById('selection-label').textContent = "ELIGE TUS ANIMALITOS:";
+        document.getElementById('animalitos-game-area').classList.add('hidden'); 
+    }
+    if(selectedLotto) renderLottoGrid(false); 
+}
+
+window.toggleDupletaMode = () => {
+    isDupletaMode = !isDupletaMode;
+    isTripletaMode = false; 
+
+    const btnTrip = document.getElementById('tripleta-toggle-btn');
+    const btnDup = document.getElementById('dupleta-toggle-btn');
+    
+    btnTrip.classList.replace('bg-purple-600', 'bg-gray-400'); btnTrip.classList.replace('hover:bg-purple-700', 'hover:bg-gray-500');
+    document.getElementById('tripleta-banner').classList.add('hidden');
+
+    if(isDupletaMode) {
+        btnDup.classList.replace('bg-gray-400', 'bg-blue-600'); btnDup.classList.replace('hover:bg-gray-500', 'hover:bg-blue-700');
+        document.getElementById('dupleta-banner').classList.remove('hidden'); 
+        document.getElementById('amount-input-container').classList.add('hidden'); 
+        
+        document.getElementById('lottery-grid-container').classList.add('hidden');
+        
+        document.getElementById('selection-label').textContent = "SELECCIONA 2 ANIMALES:";
+        selectLottery('Lotto Activo', 0); 
+        document.getElementById('selected-lottery-title').textContent = "DUPLETA (Lotto, Granjita, Selva)";
+    } else {
+        btnDup.classList.replace('bg-blue-600', 'bg-gray-400'); btnDup.classList.replace('hover:bg-blue-700', 'hover:bg-gray-500');
+        document.getElementById('dupleta-banner').classList.add('hidden'); 
+        document.getElementById('amount-input-container').classList.remove('hidden'); 
+        document.getElementById('lottery-grid-container').classList.remove('hidden');
+        document.getElementById('selection-label').textContent = "ELIGE TUS ANIMALITOS:";
+        document.getElementById('animalitos-game-area').classList.add('hidden'); 
+    }
+    if(selectedLotto) renderLottoGrid(false); 
+}
+
+window.selectLottery = (name, payout) => {
+    selectedLotto = name;
+    document.getElementById('animalitos-game-area').classList.remove('hidden');
+    if(!isTripletaMode && !isDupletaMode) {
+        document.getElementById('selected-lottery-title').textContent = `${name} (Ganas x${payout})`;
+        document.querySelectorAll('.lottery-btn').forEach(b=>b.classList.remove('lottery-selected'));
+        let btnId = 'btn-lotto-activo';
+        if(name.includes('Granjita')) btnId='btn-la-granjita'; if(name.includes('Rey')) btnId='btn-lotto-rey'; if(name.includes('Guacharo')) btnId='btn-el-guacharo'; if(name.includes('Ruleta')) btnId='btn-ruleta-activa'; if(name.includes('Mega')) btnId='btn-mega-animal-40'; if(name.includes('Selva')) btnId='btn-selva-plus';
+        if(document.getElementById(btnId)) document.getElementById(btnId).classList.add('lottery-selected');
+    }
+    renderLottoTime(name);
+    renderLottoGrid((name === 'El Guacharo' && !isTripletaMode && !isDupletaMode));
+};
+
+function renderLottoTime(name) {
+    const sel = document.getElementById('lotto-time-select'); sel.innerHTML = '';
+    const now = new Date(Date.now() + serverTimeOffset);
+    const refDate = new Date(now); if(now.getHours() >= 20) { refDate.setDate(refDate.getDate()+1); refDate.setHours(7,0,0,0); }
+    
+    let start = 8;
+    if (isTripletaMode || isDupletaMode || name === 'Mega Animal 40') {
+        start = 9; 
+    } else if (name === 'Lotto Rey') {
+        start = 8.5; 
+    }
+    let end = (name === 'Lotto Rey') ? 19.5 : 19;
+
+    for(let h=start; h<=end; h++) {
+        const hour = Math.floor(h); const min = (h % 1) * 60; const drawTime = new Date(refDate); drawTime.setHours(hour, min, 0, 0);
+        if(now < new Date(drawTime.getTime() - 600000)) {
+            const txt = `${(hour > 12 ? hour - 12 : hour)}:${(min === 0 ? '00' : '30')} ${hour >= 12 ? 'PM' : 'AM'}`;
+            const opt = document.createElement('option'); opt.value = txt; opt.textContent = txt; sel.appendChild(opt);
+        }
+    }
+}
+
+function renderLottoGrid(isGuacharo) {
+    const g = document.getElementById('lotto-animal-grid'); g.innerHTML=''; selectedLottoAnimals.clear(); updateLottoTotal();
+    const limit = (isTripletaMode || isDupletaMode) ? 36 : (isGuacharo ? 75 : 36);
+    const keys = ['0','00', ...Array.from({length:limit},(_,i)=>(i+1).toString())];
+    keys.forEach(k => {
+        const a = ANIMAL_MAP_LOTTO[k] || {n:`Num ${k}`, i:"\u2753"};
+        const d = document.createElement('div'); d.className = 'select-animal-btn';
+        d.innerHTML = `<span class="emoji-font-lg">${a.i}</span><span class="text-[10px] font-bold">${k}</span><span class="text-[8px] truncate w-full text-center">${a.n}</span>`;
+        d.onclick = () => {
+            if(isTripletaMode) {
+                if(selectedLottoAnimals.has(k)) { selectedLottoAnimals.delete(k); d.classList.remove('selected', 'tripleta-mark'); } else { if(selectedLottoAnimals.size < 3) { selectedLottoAnimals.add(k); d.classList.add('selected', 'tripleta-mark'); } }
+            } else if (isDupletaMode) {
+                if(selectedLottoAnimals.has(k)) { selectedLottoAnimals.delete(k); d.classList.remove('selected', 'dupleta-mark'); } else { if(selectedLottoAnimals.size < 2) { selectedLottoAnimals.add(k); d.classList.add('selected', 'dupleta-mark'); } }
+            } else {
+                if(selectedLottoAnimals.has(k)) { selectedLottoAnimals.delete(k); d.classList.remove('selected'); } else { selectedLottoAnimals.add(k); d.classList.add('selected'); }
+            }
+            updateLottoTotal();
+        };
+        g.appendChild(d);
+    });
+}
+
+function updateLottoTotal() {
+    if(isTripletaMode) {
+        const complete = selectedLottoAnimals.size === 3;
+        document.getElementById('lotto-total-display').textContent = complete ? `Tripleta Lista` : `Selecciona 3 (${selectedLottoAnimals.size}/3)`;
+        const btn = document.getElementById('lotto-play-btn'); btn.disabled=!complete; btn.classList.toggle('opacity-50', !complete);
+    } else if (isDupletaMode) {
+         const complete = selectedLottoAnimals.size === 2;
+        document.getElementById('lotto-total-display').textContent = complete ? `Dupleta Lista` : `Selecciona 2 (${selectedLottoAnimals.size}/2)`;
+        const btn = document.getElementById('lotto-play-btn'); btn.disabled=!complete; btn.classList.toggle('opacity-50', !complete);
+    } else {
+        const amt = parseFloat(document.getElementById('lotto-amount').value) || 0;
+        document.getElementById('lotto-total-display').textContent = `Total: ${(amt * selectedLottoAnimals.size).toFixed(2)} Bs`;
+        const btn = document.getElementById('lotto-play-btn'); btn.disabled=false; btn.classList.remove('opacity-50');
+    }
+}
+document.getElementById('lotto-amount').addEventListener('input', updateLottoTotal);
+
+window.placeBet = async () => {
+    if(isProcessing) return; isProcessing = true;
+    const time = document.getElementById('lotto-time-select').value;
+    try {
+        if(isTripletaMode) {
+            if(selectedLottoAnimals.size !== 3) throw new Error("Debes seleccionar 3 animales.");
+            const cost = tripletaConfig.cost;
+            if(userBalance < cost) throw new Error("Saldo insuficiente");
+            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - cost);
+            const animalsList = Array.from(selectedLottoAnimals);
+            await db.ref(`bets_tripletas/${currentDateStr}/${auth.currentUser.uid}`).push({ lottery: selectedLotto, time: time, animals: animalsList, amount: cost, status: 'PENDING', timestamp: firebase.database.ServerValue.TIMESTAMP });
+            alert("\u00A1Tripleta Jugada!");
+        } else if (isDupletaMode) {
+            if(selectedLottoAnimals.size !== 2) throw new Error("Debes seleccionar 2 animales.");
+            const cost = dupletaConfig.cost;
+            if(userBalance < cost) throw new Error("Saldo insuficiente");
+            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - cost);
+            const animalsList = Array.from(selectedLottoAnimals);
+            await db.ref(`bets_dupletas/${currentDateStr}/${auth.currentUser.uid}`).push({ lottery: "Dupleta", time: time, animals: animalsList, amount: cost, status: 'PENDING', timestamp: firebase.database.ServerValue.TIMESTAMP });
+            alert("\u00A1Dupleta Jugada!");
+        } else {
+            const amt = parseFloat(document.getElementById('lotto-amount').value);
+            if(selectedLottoAnimals.size === 0 || !amt || amt<1) throw new Error("Faltan datos");
+            const totalCost = amt * selectedLottoAnimals.size;
+            if(totalCost > userBalance) throw new Error("Saldo insuficiente");
+            const animalsList = Array.from(selectedLottoAnimals);
+            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - totalCost);
+            const updates = {};
+            const baseRef = `bets_animalitos/${currentDateStr}/${auth.currentUser.uid}`;
+            animalsList.forEach(animal => { const newKey = db.ref(baseRef).push().key; updates[`${baseRef}/${newKey}`] = { lottery: selectedLotto, time: time, animal: animal, amount: amt, status: 'PENDING', timestamp: firebase.database.ServerValue.TIMESTAMP }; });
+            await db.ref().update(updates);
+            alert("\u00A1Ticket Jugado!");
+        }
+        selectedLottoAnimals.clear(); document.querySelectorAll('.select-animal-btn').forEach(d => d.classList.remove('selected', 'tripleta-mark', 'dupleta-mark')); updateLottoTotal();
+    } catch(e) { alert(e.message); } finally { isProcessing = false; }
+};
+
+function calculateHits(ticketType, timeStr, userAnimals) {
+    if (!dailyResults) return { hitCount: 0, hits: [] };
+    const safeTimeKey = timeStr.replace(/:/g, '-').replace(/\./g, '').replace(/^0/, '').trim();
+    const userSet = new Set(userAnimals.map(String));
+    let hitCount = 0;
+    let hits = [];
+    let lotteriesToCheck = [];
+    if (ticketType === 'tripleta') {
+        lotteriesToCheck = ['Lotto Activo', 'La Granjita', 'Selva Plus', 'Ruleta Activa', 'Mega Animal 40'];
+    } else if (ticketType === 'dupleta') {
+        lotteriesToCheck = ['Lotto Activo', 'La Granjita', 'Selva Plus'];
+    }
+    lotteriesToCheck.forEach(lotto => {
+        if (dailyResults[lotto] && dailyResults[lotto][safeTimeKey]) {
+            const winningAnimal = String(dailyResults[lotto][safeTimeKey]);
+            if (userSet.has(winningAnimal)) {
+                hitCount++;
+                hits.push(winningAnimal);
+            }
+        }
+    });
+    const uniqueHits = [...new Set(hits)];
+    return { hitCount: uniqueHits.length, hits: uniqueHits };
+}
+
+window.loadMyDailyBets = () => {
+    if(!auth.currentUser) return;
+    const uid = auth.currentUser.uid;
+    const listAnimalitos = document.getElementById('my-bets-list');
+    const listTripletas = document.getElementById('popup-tripletas-list');
+    const listDupletas = document.getElementById('popup-dupletas-list');
+
+    if (activeAnimalitosRef) activeAnimalitosRef.off();
+    if (activeTripletasRef) activeTripletasRef.off();
+    if (activeDupletasRef) activeDupletasRef.off();
+
+    const tripRef = db.ref(`bets_tripletas/${currentDateStr}/${uid}`);
+    const dupRef = db.ref(`bets_dupletas/${currentDateStr}/${uid}`);
+    const animRef = db.ref(`bets_animalitos/${currentDateStr}/${uid}`);
+    
+    activeTripletasRef = tripRef; 
+    activeDupletasRef = dupRef;
+    activeAnimalitosRef = animRef;
+
+    tripRef.on('value', s => {
+        listTripletas.innerHTML = '';
+        if(!s.exists()) {
+            listTripletas.innerHTML = '<div class="text-center text-gray-500 p-4">No tienes tripletas jugadas hoy.</div>';
+        } else {
+            const trips = []; 
+            s.forEach(c => { trips.push(c.val()); }); 
+            
+            trips.reverse().forEach(b => {
+                let stHtml = '<span class="text-gray-500 bg-gray-200 px-2 rounded text-[10px]">PENDIENTE</span>';
+                if(b.status === 'WIN') stHtml = '<span class="text-white bg-green-500 px-2 rounded font-bold text-[10px]">GANÓ</span>';
+                if(b.status === 'LOST') stHtml = '<span class="text-white bg-red-500 px-2 rounded font-bold text-[10px]">PERDIÓ</span>';
+                let animalsSafe = b.animals || []; 
+                if(!Array.isArray(animalsSafe) && typeof animalsSafe === 'object') animalsSafe = Object.values(animalsSafe);
+                const hitData = calculateHits('tripleta', b.time, animalsSafe);
+                const hitLabel = `<span class="text-xs font-bold text-blue-600 ml-2">Aciertos: ${hitData.hitCount}/3</span>`;
+                const animalsWithEmojis = animalsSafe.map(num => { 
+                    const strNum = String(num); 
+                    const info = ANIMAL_MAP_LOTTO[strNum] || {i:'\u2753', n:'?'}; 
+                    const isHit = hitData.hits.includes(strNum);
+                    const borderClass = isHit ? "border-green-500 bg-green-100" : "border-gray-200";
+                    return `<div class="flex flex-col items-center mx-1 p-1 rounded border ${borderClass}"><span class="text-lg">${info.i}</span><span class="font-bold text-gray-800 text-xs">${strNum}</span></div>`; 
+                }).join('');
+                const tDiv = document.createElement('div'); 
+                tDiv.className = "bg-white border-2 border-purple-300 rounded-lg p-2 shadow-md";
+                tDiv.innerHTML = `<div class="flex justify-between items-center border-b border-gray-200 pb-1 mb-1"><span class="font-bold text-purple-700 text-xs">TRIPLETA - ${b.time || '--:--'}</span>${stHtml}</div><div class="flex justify-center mb-1">${animalsWithEmojis}</div><div class="text-center border-t pt-1">${hitLabel}</div>`;
+                listTripletas.appendChild(tDiv); 
+            });
+        }
+    });
+    
+    dupRef.on('value', s => {
+        listDupletas.innerHTML = '';
+        if(!s.exists()) {
+            listDupletas.innerHTML = '<div class="text-center text-gray-500 p-4">No tienes dupletas jugadas hoy.</div>';
+        } else {
+            const dups = []; 
+            s.forEach(c => { dups.push(c.val()); }); 
+            
+            dups.reverse().forEach(b => {
+                let stHtml = '<span class="text-gray-500 bg-gray-200 px-2 rounded text-[10px]">PENDIENTE</span>';
+                if(b.status === 'WIN') stHtml = '<span class="text-white bg-green-500 px-2 rounded font-bold text-[10px]">GANÓ</span>';
+                if(b.status === 'LOST') stHtml = '<span class="text-white bg-red-500 px-2 rounded font-bold text-[10px]">PERDIÓ</span>';
+                let animalsSafe = b.animals || []; 
+                if(!Array.isArray(animalsSafe) && typeof animalsSafe === 'object') animalsSafe = Object.values(animalsSafe);
+                const hitData = calculateHits('dupleta', b.time, animalsSafe);
+                const hitLabel = `<span class="text-xs font-bold text-blue-600 ml-2">Aciertos: ${hitData.hitCount}/2</span>`;
+                const animalsWithEmojis = animalsSafe.map(num => { 
+                    const strNum = String(num); 
+                    const info = ANIMAL_MAP_LOTTO[strNum] || {i:'\u2753', n:'?'}; 
+                    const isHit = hitData.hits.includes(strNum);
+                    const borderClass = isHit ? "border-green-500 bg-green-100" : "border-gray-200";
+                    return `<div class="flex flex-col items-center mx-1 p-1 rounded border ${borderClass}"><span class="text-lg">${info.i}</span><span class="font-bold text-gray-800 text-xs">${strNum}</span></div>`; 
+                }).join('');
+                const tDiv = document.createElement('div'); 
+                tDiv.className = "bg-white border-2 border-blue-300 rounded-lg p-2 shadow-md";
+                tDiv.innerHTML = `<div class="flex justify-between items-center border-b border-gray-200 pb-1 mb-1"><span class="font-bold text-blue-700 text-xs">DUPLETA - ${b.time || '--:--'}</span>${stHtml}</div><div class="flex justify-center mb-1">${animalsWithEmojis}</div><div class="text-center border-t pt-1">${hitLabel}</div>`;
+                listDupletas.appendChild(tDiv); 
+            });
+        }
+    });
+
+    animRef.on('value', s => {
+        listAnimalitos.innerHTML=''; 
+        if(!s.exists()){ listAnimalitos.innerHTML = '<div class="text-center text-gray-400 p-2 text-xs">Sin tickets de animalitos hoy.</div>'; return; }
+        const tickets = {}; s.forEach(c => { const b = c.val(); const tid = b.timestamp || c.key; if(!tickets[tid]) tickets[tid] = []; tickets[tid].push(b); });
+        Object.values(tickets).reverse().forEach(group => {
+            const first = group[0]; const totalTicket = group.reduce((sum, b) => sum + parseFloat(b.amount), 0);
+            const animalsHtml = group.map(g => { const info = ANIMAL_MAP_LOTTO[String(g.animal)] || {n:'?', i:''}; return `<span class="inline-block bg-gray-100 px-2 py-1 rounded border border-gray-200 mr-1 mb-1 font-bold text-gray-700">${info.i} ${g.animal}</span>`; }).join('');
+            const tDiv = document.createElement('div'); tDiv.className = "bg-white border rounded mb-2 overflow-hidden shadow-sm";
+            let stHtml = '<span class="text-gray-500">PENDIENTE</span>'; if(first.status === 'WIN') stHtml = '<span class="text-green-600 font-bold">GANÓ</span>'; if(first.status === 'LOST') stHtml = '<span class="text-red-500 font-bold">PERDIÓ</span>';
+            tDiv.innerHTML = `<div class="bg-gray-100 p-2 flex justify-between items-center text-xs font-bold"><span>${first.lottery} - ${first.time}</span><span>Total: Bs ${totalTicket.toFixed(2)}</span></div><div class="p-2 text-xs"><div class="mb-2 flex flex-wrap">${animalsHtml}</div><div class="text-right border-t pt-1 flex justify-between items-center"><span class="text-gray-400 italic">${group.length} Animal(es)</span>${stHtml}</div></div>`;
+            listAnimalitos.appendChild(tDiv);
+        });
+    });
+}

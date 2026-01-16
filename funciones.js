@@ -1,12 +1,15 @@
+// --- CONFIGURACIÓN Y DATOS ---
 const ANIMAL_MAP_BINGO = { 1:{n:"Carnero",i:"\u{1F40F}"},2:{n:"Toro",i:"\u{1F402}"},3:{n:"Ciempiés",i:"\u{1F41B}"},4:{n:"Alacrán",i:"\u{1F982}"},5:{n:"León",i:"\u{1F981}"},6:{n:"Rana",i:"\u{1F438}"},7:{n:"Perico",i:"\u{1F99C}"},8:{n:"Ratón",i:"\u{1F401}"},9:{n:"Águila",i:"\u{1F985}"},10:{n:"Tigre",i:"\u{1F405}"},11:{n:"Gato",i:"\u{1F408}"},12:{n:"Caballo",i:"\u{1F40E}"},13:{n:"Mono",i:"\u{1F412}"},14:{n:"Paloma",i:"\u{1F54A}"},15:{n:"Zorro",i:"\u{1F98A}"},16:{n:"Oso",i:"\u{1F43B}"},17:{n:"Pavo",i:"\u{1F983}"},18:{n:"Burro",i:"\u{1F434}"},19:{n:"Chivo",i:"\u{1F410}"},20:{n:"Cochino",i:"\u{1F416}"},21:{n:"Gallo",i:"\u{1F413}"},22:{n:"Camello",i:"\u{1F42A}"},23:{n:"Cebra",i:"\u{1F993}"},24:{n:"Iguana",i:"\u{1F98E}"},25:{n:"Gallina",i:"\u{1F414}"} };
-const ANIMAL_MAP_LOTTO = { '0':{n:"Delfín",i:"\u{1F42C}"},'00':{n:"Ballena",i:"\u{1F433}"},'1':{n:"Carnero",i:"\u{1F40F}"},'2':{n:"Toro",i:"\u{1F402}"},'3':{n:"Ciempiés",i:"\u{1F41B}"},'4':{n:"Alacrán",i:"\u{1F982}"},'5':{n:"León",i:"\u{1F981}"},'6':{n:"Rana",i:"\u{1F438}"},'7':{n:"Perico",i:"\u{1F99C}"},'8':{n:"Ratón",i:"\u{1F401}"},'9':{n:"Águila",i:"\u{1F985}"},'10':{n:"Tigre",i:"\u{1F405}"},'11':{n:"Gato",i:"\u{1F408}"},'12':{n:"Caballo",i:"\u{1F40E}"},'13':{n:"Mono",i:"\u{1F412}"},'14':{n:"Paloma",i:"\u{1F54A}"},'15':{n:"Zorro",i:"\u{1F98A}"},'16':{n:"Oso",i:"\u{1F43B}"},'17':{n:"Pavo",i:"\u{1F983}"},'18':{n:"Burro",i:"\u{1F434}"},'19':{n:"Chivo",i:"\u{1F410}"},'20':{n:"Cochino",i:"\u{1F416}"},'21':{n:"Gallo",i:"\u{1F413}"},'22':{n:"Camello",i:"\u{1F42A}"},'23':{n:"Cebra",i:"\u{1F993}"},'24':{n:"Iguana",i:"\u{1F98E}"},'25':{n:"Gallina",i:"\u{1F414}"},'26':{n:"Vaca",i:"\u{1F404}"},'27':{n:"Perro",i:"\u{1F415}"},'28':{n:"Zamuro",i:"\u{1F985}"},'29':{n:"Elefante",i:"\u{1F418}"},'30':{n:"Caimán",i:"\u{1F40A}"},'31':{n:"Lapa",i:"\u{1F9AB}"},'32':{n:"Ardilla",i:"\u{1F43F}"},'33':{n:"Pescado",i:"\u{1F41F}"},'34':{n:"Venado",i:"\u{1F41F}"},'35':{n:"Jirafa",i:"\u{1F992}"},'36':{n:"Culebra",i:"\u{1F40D}"},'37':{n:"Tortuga",i:"\u{1F422}"}, '38':{n:"Búfalo",i:"\u{1F403}"}, '39':{n:"Lechuza",i:"\u{1F989}"}, '40':{n:"Avispa",i:"\u{1F41D}"},'41':{n:"Canguro",i:"\u{1F998}"}, '42':{n:"Tucán",i:"\u{1F99C}"}, '43':{n:"Mariposa",i:"\u{1F98B}"}, '44':{n:"Chigüire",i:"\u{1F9AB}"},'45':{n:"Garza",i:"\u{1F9A9}"}, '46':{n:"Puma",i:"\u{1F408}"}, '47':{n:"Pavo Real",i:"\u{1F99A}"}, '48':{n:"Puercoespín",i:"\u{1F994}"},'49':{n:"Pereza",i:"\u{1F9A5}"}, '50':{n:"Canario",i:"\u{1F424}"}, '51':{n:"Pelícano",i:"\u{1F9A4}"}, '52':{n:"Pulpo",i:"\u{1F419}"},'53':{n:"Caracol",i:"\u{1F40C}"}, '54':{n:"Grillo",i:"\u{1F997}"}, '55':{n:"Oso Hormig.",i:"\u{1F9A1}"}, '56':{n:"Tiburón",i:"\u{1F988}"},'57':{n:"Pato",i:"\u{1F986}"}, '58':{n:"Hormiga",i:"\u{1F41C}"}, '59':{n:"Pantera",i:"\u{1F408}\u{200D}\u{2B1B}"}, '60':{n:"Camaleón",i:"\u{1F98E}"},'61':{n:"Panda",i:"\u{1F43C}"}, '62':{n:"Cachicamo",i:"\u{1F993}"}, '63':{n:"Cangrejo",i:"\u{1F980}"}, '64':{n:"Gavilán",i:"\u{1F985}"},'65':{n:"Araña",i:"\u{1F577}"}, '66':{n:"Lobo",i:"\u{1F43A}"}, '67':{n:"Avestruz",i:"\u{1F426}"}, '68':{n:"Jaguar",i:"\u{1F406}"},'69':{n:"Conejo",i:"\u{1F407}"}, '70':{n:"Bisonte",i:"\u{1F9AC}"}, '71':{n:"Guacamaya",i:"\u{1F99C}"}, '72':{n:"Gorila",i:"\u{1F98D}"},'73':{n:"Hipopótamo",i:"\u{1F99B}"}, '74':{n:"Turpial",i:"\u{1F426}"}, '75':{n:"Guácharo",i:"\u{1F987}"} };
+
+// CORRECCIÓN: 34 VENADO
+const ANIMAL_MAP_LOTTO = { '0':{n:"Delfín",i:"\u{1F42C}"},'00':{n:"Ballena",i:"\u{1F433}"},'1':{n:"Carnero",i:"\u{1F40F}"},'2':{n:"Toro",i:"\u{1F402}"},'3':{n:"Ciempiés",i:"\u{1F41B}"},'4':{n:"Alacrán",i:"\u{1F982}"},'5':{n:"León",i:"\u{1F981}"},'6':{n:"Rana",i:"\u{1F438}"},'7':{n:"Perico",i:"\u{1F99C}"},'8':{n:"Ratón",i:"\u{1F401}"},'9':{n:"Águila",i:"\u{1F985}"},'10':{n:"Tigre",i:"\u{1F405}"},'11':{n:"Gato",i:"\u{1F408}"},'12':{n:"Caballo",i:"\u{1F40E}"},'13':{n:"Mono",i:"\u{1F412}"},'14':{n:"Paloma",i:"\u{1F54A}"},'15':{n:"Zorro",i:"\u{1F98A}"},'16':{n:"Oso",i:"\u{1F43B}"},'17':{n:"Pavo",i:"\u{1F983}"},'18':{n:"Burro",i:"\u{1F434}"},'19':{n:"Chivo",i:"\u{1F410}"},'20':{n:"Cochino",i:"\u{1F416}"},'21':{n:"Gallo",i:"\u{1F413}"},'22':{n:"Camello",i:"\u{1F42A}"},'23':{n:"Cebra",i:"\u{1F993}"},'24':{n:"Iguana",i:"\u{1F98E}"},'25':{n:"Gallina",i:"\u{1F414}"},'26':{n:"Vaca",i:"\u{1F404}"},'27':{n:"Perro",i:"\u{1F415}"},'28':{n:"Zamuro",i:"\u{1F985}"},'29':{n:"Elefante",i:"\u{1F418}"},'30':{n:"Caimán",i:"\u{1F40A}"},'31':{n:"Lapa",i:"\u{1F9AB}"},'32':{n:"Ardilla",i:"\u{1F43F}"},'33':{n:"Pescado",i:"\u{1F41F}"},'34':{n:"Venado",i:"\u{1F98C}"},'35':{n:"Jirafa",i:"\u{1F992}"},'36':{n:"Culebra",i:"\u{1F40D}"},'37':{n:"Tortuga",i:"\u{1F422}"}, '38':{n:"Búfalo",i:"\u{1F403}"}, '39':{n:"Lechuza",i:"\u{1F989}"}, '40':{n:"Avispa",i:"\u{1F41D}"},'41':{n:"Canguro",i:"\u{1F998}"}, '42':{n:"Tucán",i:"\u{1F99C}"}, '43':{n:"Mariposa",i:"\u{1F98B}"}, '44':{n:"Chigüire",i:"\u{1F9AB}"},'45':{n:"Garza",i:"\u{1F9A9}"}, '46':{n:"Puma",i:"\u{1F408}"}, '47':{n:"Pavo Real",i:"\u{1F99A}"}, '48':{n:"Puercoespín",i:"\u{1F994}"},'49':{n:"Pereza",i:"\u{1F9A5}"}, '50':{n:"Canario",i:"\u{1F424}"}, '51':{n:"Pelícano",i:"\u{1F9A4}"}, '52':{n:"Pulpo",i:"\u{1F419}"},'53':{n:"Caracol",i:"\u{1F40C}"}, '54':{n:"Grillo",i:"\u{1F997}"}, '55':{n:"Oso Hormig.",i:"\u{1F9A1}"}, '56':{n:"Tiburón",i:"\u{1F988}"},'57':{n:"Pato",i:"\u{1F986}"}, '58':{n:"Hormiga",i:"\u{1F41C}"}, '59':{n:"Pantera",i:"\u{1F408}\u{200D}\u{2B1B}"}, '60':{n:"Camaleón",i:"\u{1F98E}"},'61':{n:"Panda",i:"\u{1F43C}"}, '62':{n:"Cachicamo",i:"\u{1F993}"}, '63':{n:"Cangrejo",i:"\u{1F980}"}, '64':{n:"Gavilán",i:"\u{1F985}"},'65':{n:"Araña",i:"\u{1F577}"}, '66':{n:"Lobo",i:"\u{1F43A}"}, '67':{n:"Avestruz",i:"\u{1F426}"}, '68':{n:"Jaguar",i:"\u{1F406}"},'69':{n:"Conejo",i:"\u{1F407}"}, '70':{n:"Bisonte",i:"\u{1F9AC}"}, '71':{n:"Guacamaya",i:"\u{1F99C}"}, '72':{n:"Gorila",i:"\u{1F98D}"},'73':{n:"Hipopótamo",i:"\u{1F99B}"}, '74':{n:"Turpial",i:"\u{1F426}"}, '75':{n:"Guácharo",i:"\u{1F987}"} };
 
 const firebaseConfig = { apiKey: "AIzaSyDVPFhi9Vwk5DRhMOVqHPArppe-1gG1Gbw", authDomain: "bingo-nuevo.firebaseapp.com", databaseURL: "https://bingo-nuevo-default-rtdb.firebaseio.com", projectId: "bingo-nuevo", storageBucket: "bingo-nuevo-firebasestorage.app", messagingSenderId: "519445444132", appId: "1:519445444132:web:1dd8327222a6472f654ab1" };
 firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.database();
 
 let userBalance=0, serverTimeOffset=0, currentCardPrice=0, currentDate=null, globalLimit=0, totalSold=0;
 let purchaseState = {totalQty:0, currentCardIndex:0, draftCards:[]}, currentSelection=new Set();
-let selectedLotto=null, selectedLottoAnimals = new Set(), selectedPrimeritoAnimal=null;
+let selectedLotto=null, selectedLottoAnimals = new Set();
 let currentDateStr = "", miniGameStatus = 'closed', currentLimits = { general: 700, guacharo: 350 };
 let isProcessing = false;
 
@@ -16,7 +19,8 @@ let isTripletaMode = false;
 let tripletaConfig = { cost: 300, reward: 100000 };
 
 let isDupletaMode = false;
-let dupletaConfig = { cost: 300, reward: 38000 };
+// CORRECCIÓN: PREMIO DUPLETA 18.000
+let dupletaConfig = { cost: 300, reward: 18000 };
 let activeDupletasRef = null;
 let dailyResults = {}; 
 
@@ -91,9 +95,8 @@ function init() {
     syncTime();
     startCountdown();
 
-    db.ref('draw_status').on('value', s=>{ const d = s.val() || {}; currentDate = d.date; miniGameStatus = d.minigame_status; if(d.status==='active') { db.ref(`draw_details/${d.date}`).once('value', v=>{ const val=v.val()||{}; currentCardPrice=val.price||0; globalLimit=val.limit||0; if(document.getElementById('starter-card-price')) document.getElementById('starter-card-price').textContent=currentCardPrice.toFixed(2); updateUrgency(); }); } });
+    db.ref('draw_status').on('value', s=>{ const d = s.val() || {}; currentDate = d.date; if(d.status==='active') { db.ref(`draw_details/${d.date}`).once('value', v=>{ const val=v.val()||{}; currentCardPrice=val.price||0; globalLimit=val.limit||0; if(document.getElementById('starter-card-price')) document.getElementById('starter-card-price').textContent=currentCardPrice.toFixed(2); updateUrgency(); }); } });
     db.ref('bingo_aprobados_estelar').on('value',s=>{ let c=0; s.forEach(x=>{if(x.val().date===currentDate)c++}); totalSold=c; updateUrgency(); });
-    const pg=document.getElementById('primerito-grid'); pg.innerHTML=''; for(let i=1;i<=25;i++){ const a=ANIMAL_MAP_BINGO[i]; const b=document.createElement('div'); b.className="select-animal-btn"; b.innerHTML=`<span class="emoji-font">${a.i}</span>${i}-${a.n}`; b.onclick=()=>{if(miniGameStatus==='closed')return; document.querySelectorAll('#primerito-grid div').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedPrimeritoAnimal=i; askPrimeritoAmount(i);}; pg.appendChild(b); }
 }
 
 function startCountdown() {
@@ -116,7 +119,6 @@ function updateGameDate() {
     currentDateStr = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`; 
     document.getElementById('game-date-display').textContent = currentDateStr; 
     
-    // LECTURA DE RESULTADOS PARA CONTADOR DE ACIERTOS
     db.ref(`results_log/${currentDateStr}`).on('value', s => {
         dailyResults = s.val() || {};
         loadMyDailyBets(); 
@@ -157,20 +159,18 @@ window.openDupletaModal = () => {
     loadMyDailyBets(); 
 }
 
+// BINGO HANDLERS (LIMPIEZA)
 if(document.getElementById('start-purchase-btn')) document.getElementById('start-purchase-btn').onclick=()=>{document.getElementById('chat-flow-area').classList.remove('hidden'); document.getElementById('bot-message-display').innerHTML="¿Cuántos cartones?"; document.getElementById('quantity-selector-area').classList.remove('hidden'); const q=document.getElementById('quantity-grid'); q.innerHTML=''; for(let i=1;i<=15;i++){ const b=document.createElement('div'); b.className="qty-btn"; b.textContent=i; b.onclick=()=>startBingoSel(i); q.appendChild(b); }}
-if(document.getElementById('start-primerito-btn')) document.getElementById('start-primerito-btn').onclick=()=>{document.getElementById('chat-flow-area').classList.remove('hidden'); document.getElementById('primerito-selector-area').classList.remove('hidden');}
 
 function startBingoSel(n){ purchaseState={totalQty:n, currentCardIndex:0, draftCards:[]}; document.getElementById('quantity-selector-area').classList.add('hidden'); document.getElementById('animal-selector-area').classList.remove('hidden'); renderBingoSel(); }
 function renderBingoSel(){ currentSelection.clear(); document.getElementById('current-card-num').textContent=purchaseState.currentCardIndex+1; document.getElementById('confirm-card-btn').disabled=true; document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent="0/15"; const g=document.getElementById('animal-selection-grid'); g.innerHTML=''; for(let i=1; i<=25; i++) { const b=document.createElement('div'); b.className="select-animal-btn"; b.innerHTML = `<span class="emoji-font">${ANIMAL_MAP_BINGO[i].i}</span>${i}-${ANIMAL_MAP_BINGO[i].n}`; b.onclick=()=>{ if(currentSelection.has(i)) { currentSelection.delete(i); b.classList.remove('selected'); } else if(currentSelection.size<15) { currentSelection.add(i); b.classList.add('selected'); } const done = currentSelection.size === 15; document.getElementById('confirm-card-btn').disabled = !done; if(done) document.getElementById('confirm-card-btn').classList.remove('opacity-50', 'cursor-not-allowed'); else document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent = currentSelection.size + "/15"; }; g.appendChild(b); } }
 window.fillRandomAnimals=()=>{ currentSelection.clear(); Array.from({length:25},(_,i)=>i+1).sort(()=>Math.random()-0.5).slice(0,15).forEach(x=>currentSelection.add(x)); const ds=document.getElementById('animal-selection-grid').children; for(let i=0;i<25;i++) if(currentSelection.has(i+1)) ds[i].classList.add('selected'); else ds[i].classList.remove('selected'); document.getElementById('selection-counter').textContent="15/15"; document.getElementById('confirm-card-btn').disabled=false; document.getElementById('confirm-card-btn').classList.remove('opacity-50'); }
 window.confirmCurrentCard=async()=>{ purchaseState.draftCards.push(Array.from(currentSelection).sort((a,b)=>a-b)); purchaseState.currentCardIndex++; if(purchaseState.currentCardIndex<purchaseState.totalQty) renderBingoSel(); else { const cost=purchaseState.totalQty*currentCardPrice; if(cost>userBalance) return alert("Saldo insuficiente"); await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>c-cost); const cards=purchaseState.draftCards.map(n=>({numbers:n, id:sha256(JSON.stringify(n)).substring(0,8)})); await Promise.all(cards.map(c=>db.ref('bingo_aprobados_estelar').push({numbers:c.numbers, id:c.id, uid:auth.currentUser.uid, date:currentDate, status:'APROBADO'}))); document.getElementById('bot-message-display').innerHTML = `\u2705 Listo. ${purchaseState.totalQty} cartones.`; setTimeout(() => document.getElementById('chat-flow-area').classList.add('hidden'), 3000); document.getElementById('my-cards-btn').click(); } }
-window.askPrimeritoAmount=(i)=>{document.getElementById('primerito-selector-area').classList.add('hidden'); document.getElementById('primerito-amount-area').classList.remove('hidden'); document.getElementById('primerito-bet-amount').focus();}
-window.confirmPrimeritoBet=async()=>{ const a=parseFloat(document.getElementById('primerito-bet-amount').value); if(a>userBalance)return alert("Saldo insuficiente"); await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>c-a); await db.ref(`bets_bingo_first/${currentDate}/${auth.currentUser.uid}`).push({animal:selectedPrimeritoAnimal, amount:a, status:'PENDING'}); document.getElementById('primerito-amount-area').classList.add('hidden'); document.getElementById('bot-message-display').innerHTML = `\u2705 Apuesta lista!`; setTimeout(()=>document.getElementById('chat-flow-area').classList.add('hidden'), 2000); document.getElementById('my-cards-btn').click(); }
 
 window.loadMyBingoHistory = () => {
     document.getElementById('carton-display-container').classList.remove('hidden'); 
-    const listCards = document.getElementById('carton-list'); const listPrimerito = document.getElementById('primerito-list');
-    listCards.innerHTML=''; listPrimerito.innerHTML='';
+    const listCards = document.getElementById('carton-list');
+    listCards.innerHTML=''; 
     
     db.ref('bingo_aprobados_estelar').orderByChild('uid').equalTo(auth.currentUser.uid).once('value',s=>{
         let found = false;
@@ -189,8 +189,6 @@ window.loadMyBingoHistory = () => {
         });
         if(!found) document.getElementById('no-cards-msg').classList.remove('hidden'); else document.getElementById('no-cards-msg').classList.add('hidden');
     });
-
-    db.ref(`bets_bingo_first/${currentDate}/${auth.currentUser.uid}`).once('value', s => { if(s.exists()){ s.forEach(betSnap => { const bet = betSnap.val(); const pDiv = document.createElement('div'); pDiv.className = "bg-blue-100 border-l-4 border-blue-500 p-2 rounded text-xs flex justify-between"; pDiv.innerHTML = `<span><b>EL PRIMERITO:</b> ${ANIMAL_MAP_BINGO[bet.animal].i} ${bet.animal}</span> <span>${bet.amount} Bs</span>`; listPrimerito.appendChild(pDiv); }); }});
 }
 
 window.toggleTripletaMode = () => {

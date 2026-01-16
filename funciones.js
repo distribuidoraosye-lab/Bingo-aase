@@ -1,10 +1,7 @@
 // --- CONFIGURACIÓN Y DATOS ---
 const ANIMAL_MAP_BINGO = { 1:{n:"Carnero",i:"\u{1F40F}"},2:{n:"Toro",i:"\u{1F402}"},3:{n:"Ciempiés",i:"\u{1F41B}"},4:{n:"Alacrán",i:"\u{1F982}"},5:{n:"León",i:"\u{1F981}"},6:{n:"Rana",i:"\u{1F438}"},7:{n:"Perico",i:"\u{1F99C}"},8:{n:"Ratón",i:"\u{1F401}"},9:{n:"Águila",i:"\u{1F985}"},10:{n:"Tigre",i:"\u{1F405}"},11:{n:"Gato",i:"\u{1F408}"},12:{n:"Caballo",i:"\u{1F40E}"},13:{n:"Mono",i:"\u{1F412}"},14:{n:"Paloma",i:"\u{1F54A}"},15:{n:"Zorro",i:"\u{1F98A}"},16:{n:"Oso",i:"\u{1F43B}"},17:{n:"Pavo",i:"\u{1F983}"},18:{n:"Burro",i:"\u{1F434}"},19:{n:"Chivo",i:"\u{1F410}"},20:{n:"Cochino",i:"\u{1F416}"},21:{n:"Gallo",i:"\u{1F413}"},22:{n:"Camello",i:"\u{1F42A}"},23:{n:"Cebra",i:"\u{1F993}"},24:{n:"Iguana",i:"\u{1F98E}"},25:{n:"Gallina",i:"\u{1F414}"} };
-
-// 34 VENADO CORREGIDO
 const ANIMAL_MAP_LOTTO = { '0':{n:"Delfín",i:"\u{1F42C}"},'00':{n:"Ballena",i:"\u{1F433}"},'1':{n:"Carnero",i:"\u{1F40F}"},'2':{n:"Toro",i:"\u{1F402}"},'3':{n:"Ciempiés",i:"\u{1F41B}"},'4':{n:"Alacrán",i:"\u{1F982}"},'5':{n:"León",i:"\u{1F981}"},'6':{n:"Rana",i:"\u{1F438}"},'7':{n:"Perico",i:"\u{1F99C}"},'8':{n:"Ratón",i:"\u{1F401}"},'9':{n:"Águila",i:"\u{1F985}"},'10':{n:"Tigre",i:"\u{1F405}"},'11':{n:"Gato",i:"\u{1F408}"},'12':{n:"Caballo",i:"\u{1F40E}"},'13':{n:"Mono",i:"\u{1F412}"},'14':{n:"Paloma",i:"\u{1F54A}"},'15':{n:"Zorro",i:"\u{1F98A}"},'16':{n:"Oso",i:"\u{1F43B}"},'17':{n:"Pavo",i:"\u{1F983}"},'18':{n:"Burro",i:"\u{1F434}"},'19':{n:"Chivo",i:"\u{1F410}"},'20':{n:"Cochino",i:"\u{1F416}"},'21':{n:"Gallo",i:"\u{1F413}"},'22':{n:"Camello",i:"\u{1F42A}"},'23':{n:"Cebra",i:"\u{1F993}"},'24':{n:"Iguana",i:"\u{1F98E}"},'25':{n:"Gallina",i:"\u{1F414}"},'26':{n:"Vaca",i:"\u{1F404}"},'27':{n:"Perro",i:"\u{1F415}"},'28':{n:"Zamuro",i:"\u{1F985}"},'29':{n:"Elefante",i:"\u{1F418}"},'30':{n:"Caimán",i:"\u{1F40A}"},'31':{n:"Lapa",i:"\u{1F9AB}"},'32':{n:"Ardilla",i:"\u{1F43F}"},'33':{n:"Pescado",i:"\u{1F41F}"},'34':{n:"Venado",i:"\u{1F98C}"},'35':{n:"Jirafa",i:"\u{1F992}"},'36':{n:"Culebra",i:"\u{1F40D}"},'37':{n:"Tortuga",i:"\u{1F422}"}, '38':{n:"Búfalo",i:"\u{1F403}"}, '39':{n:"Lechuza",i:"\u{1F989}"}, '40':{n:"Avispa",i:"\u{1F41D}"},'41':{n:"Canguro",i:"\u{1F998}"}, '42':{n:"Tucán",i:"\u{1F99C}"}, '43':{n:"Mariposa",i:"\u{1F98B}"}, '44':{n:"Chigüire",i:"\u{1F9AB}"},'45':{n:"Garza",i:"\u{1F9A9}"}, '46':{n:"Puma",i:"\u{1F408}"}, '47':{n:"Pavo Real",i:"\u{1F99A}"}, '48':{n:"Puercoespín",i:"\u{1F994}"},'49':{n:"Pereza",i:"\u{1F9A5}"}, '50':{n:"Canario",i:"\u{1F424}"}, '51':{n:"Pelícano",i:"\u{1F9A4}"}, '52':{n:"Pulpo",i:"\u{1F419}"},'53':{n:"Caracol",i:"\u{1F40C}"}, '54':{n:"Grillo",i:"\u{1F997}"}, '55':{n:"Oso Hormig.",i:"\u{1F9A1}"}, '56':{n:"Tiburón",i:"\u{1F988}"},'57':{n:"Pato",i:"\u{1F986}"}, '58':{n:"Hormiga",i:"\u{1F41C}"}, '59':{n:"Pantera",i:"\u{1F408}\u{200D}\u{2B1B}"}, '60':{n:"Camaleón",i:"\u{1F98E}"},'61':{n:"Panda",i:"\u{1F43C}"}, '62':{n:"Cachicamo",i:"\u{1F993}"}, '63':{n:"Cangrejo",i:"\u{1F980}"}, '64':{n:"Gavilán",i:"\u{1F985}"},'65':{n:"Araña",i:"\u{1F577}"}, '66':{n:"Lobo",i:"\u{1F43A}"}, '67':{n:"Avestruz",i:"\u{1F426}"}, '68':{n:"Jaguar",i:"\u{1F406}"},'69':{n:"Conejo",i:"\u{1F407}"}, '70':{n:"Bisonte",i:"\u{1F9AC}"}, '71':{n:"Guacamaya",i:"\u{1F99C}"}, '72':{n:"Gorila",i:"\u{1F98D}"},'73':{n:"Hipopótamo",i:"\u{1F99B}"}, '74':{n:"Turpial",i:"\u{1F426}"}, '75':{n:"Guácharo",i:"\u{1F987}"} };
 
-// IMÁGENES LOTERÍAS (NUEVO: NECESARIO PARA MOSTRAR RESULTADOS)
 const LOTTO_IMGS = {
     'Lotto Activo': 'b619cd4a138baf5860c9c2250f9fe9d78ca2abd3.png',
     'La Granjita': '21e0b011b246a96b2561eeea537bcc519ab647a9.jpeg',
@@ -196,7 +193,7 @@ window.placeBet = async () => {
             const amt = parseFloat(document.getElementById('lotto-amount').value);
             if(selectedLottoAnimals.size === 0 || !amt || amt<1) throw new Error("Faltan datos");
             const cost = amt * selectedLottoAnimals.size; if(userBalance < cost) throw new Error("Saldo insuficiente");
-            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - cost);
+            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - totalCost);
             const u={}; const baseRef = `bets_animalitos/${currentDateStr}/${auth.currentUser.uid}`;
             selectedLottoAnimals.forEach(animal => { const k = db.ref(baseRef).push().key; u[`${baseRef}/${k}`] = { lottery: selectedLotto, time, animal, amount: amt, status: 'PENDING', timestamp: firebase.database.ServerValue.TIMESTAMP }; });
             await db.ref().update(u);
@@ -209,7 +206,7 @@ window.placeBet = async () => {
 // --- LOGICA DE RESULTADOS Y ACIERTOS (CORREGIDA PARA MOSTRAR IMAGENES Y RESULTADOS) ---
 function calculateHits(ticketType, timeStr, userAnimals) {
     if (!dailyResults) return { hitCount: 0, hits: [], resultsHtml: '' };
-    // Normalizar hora para que coincida con la base de datos (Ej: "09:00 AM" a "9-00-AM")
+    // Normalizar hora
     let cleanTime = timeStr.replace(/^0+/, '').replace(/:/g, '-').replace(/\./g, '').trim(); 
     
     const userSet = new Set(userAnimals.map(String));
@@ -217,7 +214,7 @@ function calculateHits(ticketType, timeStr, userAnimals) {
     let hits = [];
     let ticketResults = [];
 
-    // Loterías a revisar según el modo
+    // Loterías a revisar
     let lotteriesToCheck = [];
     if (ticketType === 'tripleta') {
         lotteriesToCheck = ['Lotto Activo', 'La Granjita', 'Selva Plus', 'Ruleta Activa', 'Mega Animal 40'];
@@ -228,8 +225,7 @@ function calculateHits(ticketType, timeStr, userAnimals) {
     lotteriesToCheck.forEach(lotto => {
         let winningAnimal = null;
         if (dailyResults[lotto]) {
-            // Intentar encontrar el resultado con varias claves posibles de hora
-            const possibleKeys = [cleanTime, `0${cleanTime}`]; // probar "9-00-AM" y "09-00-AM"
+            const possibleKeys = [cleanTime, `0${cleanTime}`];
             for (let key of possibleKeys) {
                 if (dailyResults[lotto][key]) {
                     winningAnimal = String(dailyResults[lotto][key]);
@@ -247,14 +243,12 @@ function calculateHits(ticketType, timeStr, userAnimals) {
             const animalInfo = ANIMAL_MAP_LOTTO[winningAnimal] || {i:'?', n:''};
             ticketResults.push(`<div class="flex flex-col items-center"><img src="${logo}" class="w-6 h-6 rounded-full border border-gray-300"><span class="text-[10px] font-bold ${isHit ? 'text-green-600':'text-gray-500'}">${animalInfo.i} ${winningAnimal}</span></div>`);
         } else {
-             // Si no ha salido, mostrar logo gris o guion
              let logo = LOTTO_IMGS[lotto];
              if(logo && !logo.startsWith('http')) logo = 'https://bingotexier.com/archivos/imagenes/' + logo;
              ticketResults.push(`<div class="flex flex-col items-center opacity-50"><img src="${logo}" class="w-6 h-6 rounded-full grayscale"><span class="text-[10px]">-</span></div>`);
         }
     });
     
-    // Evitar duplicados en el contador visual de aciertos
     const uniqueHits = [...new Set(hits)];
     return { hitCount: uniqueHits.length, hits: uniqueHits, resultsHtml: ticketResults.join('') };
 }

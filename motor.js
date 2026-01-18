@@ -105,3 +105,5 @@ window.placeBet = async () => {
 };
 
 // ... Resto de funciones (renderLottoGrid, updateModeUI, loadMyDailyBets, etc.) se mantienen igual
+
+

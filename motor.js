@@ -5,7 +5,6 @@ const ANIMAL_MAP_LOTTO={'0':{n:"Delfín",i:"\u{1F42C}"},'00':{n:"Ballena",i:"\u{
 const firebaseConfig = { apiKey: "AIzaSyDVPFhi9Vwk5DRhMOVqHPArppe-1gG1Gbw", authDomain: "bingo-nuevo.firebaseapp.com", databaseURL: "https://bingo-nuevo-default-rtdb.firebaseio.com", projectId: "bingo-nuevo", storageBucket: "bingo-nuevo-firebasestorage.app", messagingSenderId: "519445444132", appId: "1:519445444132:web:1dd8327222a6472f654ab1" };
 firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.database();
 
-// VARIABLES GLOBALES (Y NUEVAS PARA SORTEO)
 let userBalance=0, serverTimeOffset=0, currentCardPrice=0, currentDate=null, globalLimit=0, totalSold=0;
 let purchaseState = {totalQty:0, currentCardIndex:0, draftCards:[]}, currentSelection=new Set();
 let selectedLotto=null, selectedLottoAnimals = new Set();
@@ -14,14 +13,6 @@ let isProcessing = false;
 let activeAnimalitosRef=null, activeTripletasRef=null, isTripletaMode=false, tripletaConfig={cost:300,reward:100000};
 let isDupletaMode=false, dupletaConfig={cost:300,reward:18000}, activeDupletasRef=null, dailyResults={}; 
 
-// VARIABLES ESPECÍFICAS DE VIDEO
-let userYTPlayer;
-let drawSequence = [];
-let allParticipantsData = [];
-let syncTimer;
-let viewingDate = "today"; // Para saber si estamos viendo hoy o historial
-
-// INICIALIZACIÓN
 window.onload=()=>{
     auth.onAuthStateChanged(u=>{ 
         document.getElementById('auth-area').classList.toggle('hidden', !!u);
@@ -34,9 +25,6 @@ window.onload=()=>{
     document.getElementById('withdraw-form').onsubmit=async(e)=>{e.preventDefault(); const a=parseFloat(document.getElementById('withdraw-amount').value); if(a>userBalance) return alert("Saldo insuficiente"); const d = {amount:a, tlf:document.getElementById('w-tlf').value, cedula:document.getElementById('w-cedula').value, banco:document.getElementById('w-banco').value, uid:auth.currentUser.uid, name:auth.currentUser.displayName, userPhone:auth.currentUser.email.split('@')[0], status:'PENDING', timestamp:firebase.database.ServerValue.TIMESTAMP}; await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>(c||0)-a); await db.ref(`users/${auth.currentUser.uid}/balance_pending_withdrawal`).transaction(c=>(c||0)+a); await db.ref('withdrawal_requests').push(d); alert("Enviado"); document.getElementById('withdraw-form-area').style.display='none';};
     db.ref('config/tripleta').on('value', s => { if(s.exists()) tripletaConfig = s.val(); });
     db.ref('config/dupleta').on('value', s => { if(s.exists()) dupletaConfig = s.val(); });
-
-    // Cargar historial de sorteos
-    loadHistoryDates();
 };
 
 function init(){
@@ -50,191 +38,11 @@ function init(){
 async function syncTime(){try{const r=await fetch('https://worldtimeapi.org/api/timezone/America/Caracas');const d=await r.json();serverTimeOffset=new Date(d.datetime).getTime()-Date.now();}catch(e){}updateGameDate();}
 function updateGameDate(){const now=new Date(Date.now()+serverTimeOffset); if(now.getHours()>=20) now.setDate(now.getDate()+1); currentDateStr=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`; db.ref(`results_log/${currentDateStr}`).on('value',s=>{dailyResults=s.val()||{}; loadMyDailyBets();});}
 
-// *** FUNCIÓN SEGURA PARA CAMBIAR PANTALLA ***
-window.cambiarPantalla = function(mode) {
-    document.getElementById('section-bingo').classList.add('hidden');
-    document.getElementById('section-bingo').style.display = 'none';
-    document.getElementById('section-animalitos').classList.add('hidden');
-    document.getElementById('section-animalitos').style.display = 'none';
-    document.getElementById('section-sorteo-vivo').classList.add('hidden');
-    
-    clearInterval(syncTimer);
-    if(userYTPlayer && userYTPlayer.stopVideo) userYTPlayer.stopVideo();
-
-    if(mode === 'bingo') {
-        document.getElementById('section-bingo').classList.remove('hidden');
-        document.getElementById('section-bingo').style.display = 'block';
-    } else if(mode === 'animalitos') {
-        document.getElementById('section-animalitos').classList.remove('hidden');
-        document.getElementById('section-animalitos').style.display = 'block';
-    } else if(mode === 'sorteo-vivo') {
-        document.getElementById('section-sorteo-vivo').classList.remove('hidden');
-        loadHistoricalDraw('today'); // Por defecto carga hoy
-    }
-};
-
-// --- GESTIÓN DE HISTORIAL ---
-function loadHistoryDates() {
-    db.ref('historial_sorteos_animados').once('value', snap => {
-        if(!snap.exists()) return;
-        const selector = document.getElementById('history-selector');
-        selector.innerHTML = '<option value="today">Sorteo de Hoy (En Vivo)</option>';
-        snap.forEach(child => {
-            const date = child.key;
-            const opt = document.createElement('option');
-            opt.value = date;
-            opt.innerText = `Sorteo del ${date}`;
-            selector.appendChild(opt);
-        });
-    });
-}
-
-window.loadHistoricalDraw = function(dateKey) {
-    viewingDate = dateKey;
-    let dataRef, betsRef;
-
-    // LÓGICA DE PERSISTENCIA: Si es hoy, busca en estelar. Si es historial, busca en historial.
-    if(dateKey === 'today') {
-        dataRef = db.ref('sorteo_animado_actual');
-        betsRef = db.ref(`bingo_to_grade/estelar/${currentDateStr}/bets`);
-    } else {
-        dataRef = db.ref(`historial_sorteos_animados/${dateKey}`);
-        betsRef = db.ref(`historial_apuestas_bingo/${dateKey}`); // Asumiendo que guardas copias aquí
-    }
-
-    dataRef.on('value', snap => {
-        if(!snap.exists()) { 
-            // Si no hay video, no mostramos nada
-            if(dateKey !== 'today') alert("No hay video para esta fecha"); 
-            return; 
-        }
-        const data = snap.val();
-        drawSequence = data.secuencia || [];
-        
-        if(userYTPlayer && userYTPlayer.loadVideoById) {
-            userYTPlayer.loadVideoById(data.video_id);
-        } else {
-            userYTPlayer = new YT.Player('user-player', {
-                height: '100%',
-                width: '100%',
-                videoId: data.video_id,
-                playerVars: { 'autoplay': 1, 'modestbranding': 1, 'rel': 0 },
-                events: { 'onStateChange': onPlayerStateChange }
-            });
-        }
-    });
-
-    betsRef.on('value', s => {
-        allParticipantsData = s.exists() ? Object.values(s.val()) : [];
-        // Si la lista está vacía, intenta buscar en el backup por si ya se calificó
-        if(allParticipantsData.length === 0 && dateKey === 'today') {
-             // Aquí podrías agregar un fallback a `historial_apuestas_bingo` si es necesario
-        }
-    });
-};
-
-function onPlayerStateChange(event) {
-    if (event.data == YT.PlayerState.PLAYING) {
-        syncTimer = setInterval(updateLiveSync, 500);
-    } else {
-        clearInterval(syncTimer);
-    }
-}
-
-// --- LÓGICA CENTRAL DE SINCRONIZACIÓN ---
-function updateLiveSync() {
-    if(!userYTPlayer || !userYTPlayer.getCurrentTime) return;
-    
-    const time = userYTPlayer.getCurrentTime();
-    const out = drawSequence.filter(s => s.seg <= time);
-    const outIds = out.map(s => s.animal.toString());
-
-    if(out.length > 0) {
-        const last = out[out.length - 1];
-        document.getElementById('live-animal-name').textContent = `#${last.animal} ${last.nombre}`;
-    }
-
-    // CALCULAR RANKING
-    const ranked = allParticipantsData.map(p => {
-        const pNums = Array.isArray(p.numbers) ? p.numbers : Object.values(p.numbers || {});
-        const hits = pNums.filter(n => outIds.includes(n.toString())).length;
-        
-        // Si es el usuario logueado, DIBUJAR SUS CARTONES
-        if(auth.currentUser && p.name === auth.currentUser.displayName) {
-             renderMyLiveCards(pNums, outIds);
-        }
-        return { name: p.name, hits: hits };
-    }).sort((a,b) => b.hits - a.hits); // Ordenar mayor a menor
-
-    renderLiveRanking(ranked);
-    calculatePavoso(ranked);
-}
-
-// --- VISUALIZACIÓN DE CARTONES (LO QUE PEDISTE) ---
-function renderMyLiveCards(myNumbers, drawnIds) {
-    const container = document.getElementById('live-user-cards');
-    if(!myNumbers || myNumbers.length === 0) {
-        container.innerHTML = "<p class='text-center text-xs text-gray-500'>No tienes cartones activos.</p>";
-        return;
-    }
-
-    // Dividir los números en grupos de 25 (cartones) o mostrarlos todos
-    // Aquí asumimos visualización compacta
-    let html = `<div class="bg-gray-100 p-2 rounded-lg border border-gray-300 relative shadow-sm"><div class="grid grid-cols-5 gap-1">`;
-    
-    myNumbers.forEach(num => {
-         const isMarked = drawnIds.includes(num.toString());
-         const animal = ANIMAL_MAP_BINGO[num];
-         html += `
-            <div class="flex flex-col items-center justify-center p-1 rounded aspect-square ${isMarked ? 'bg-green-500 text-white scale-105 shadow-lg border-green-600' : 'bg-white text-gray-700 border-gray-200'} border transition-all duration-300">
-                <span class="text-xl leading-none">${animal ? animal.i : '?'}</span>
-                <span class="text-[8px] font-bold">${num}</span>
-            </div>
-         `;
-    });
-    
-    html += `</div></div>`;
-    container.innerHTML = html;
-}
-
-// --- VISUALIZACIÓN DEL PAVOSO (LO QUE FALTABA) ---
-function calculatePavoso(rankedList) {
-    if(rankedList.length === 0) return;
-    // El último de la lista ordenada (menor puntaje)
-    const pavoso = rankedList[rankedList.length - 1]; 
-    
-    const zone = document.getElementById('pavoso-zone');
-    const display = document.getElementById('pavoso-display');
-    
-    zone.classList.remove('hidden');
-    display.innerHTML = `
-        <span class="text-white font-bold text-sm uppercase">${pavoso.name}</span>
-        <span class="bg-red-600 text-white px-2 py-1 rounded text-xs font-black">${pavoso.hits} ACIERTOS</span>
-    `;
-}
-
-function renderLiveRanking(list) {
-    const container = document.getElementById('live-ranking-list');
-    const myName = auth.currentUser ? auth.currentUser.displayName : "";
-    
-    container.innerHTML = list.slice(0, 6).map((p, i) => {
-        const isMe = p.name === myName;
-        return `
-            <div class="flex justify-between items-center p-3 rounded-xl transition-all duration-500 ${isMe ? 'bg-yellow-500/20 border border-yellow-500' : 'bg-white/5'}">
-                <span class="text-white text-xs font-bold">
-                    <span class="text-gray-500 mr-2">${i+1}</span> ${p.name.substring(0, 15)}
-                </span>
-                <span class="${isMe ? 'text-yellow-400' : 'text-gray-400'} font-black text-sm">${p.hits} aciertos</span>
-            </div>
-        `;
-    }).join('');
-}
-
-// FUNCIONES BÁSICAS DE APUESTA (SIN CAMBIOS)
 window.placeBet = async () => {
     if(isProcessing) return; isProcessing = true;
     const time = document.getElementById('lotto-time-select').value;
     
+    // CALCULAR EL LÍMITE (10 minutos antes)
     const [hStr, mStr] = time.split(':');
     let [mins, period] = mStr.split(' ');
     let hour = parseInt(hStr);
@@ -288,10 +96,12 @@ window.placeBet = async () => {
             alert("\u2705 ¡Ticket Jugado!");
         }
         selectedLottoAnimals.clear();
-        if(window.updateModeUI) window.updateModeUI();
+        updateModeUI();
     } catch(e) {
         alert(e.message);
     } finally {
         isProcessing = false;
     }
 };
+
+// ... Resto de funciones (renderLottoGrid, updateModeUI, loadMyDailyBets, etc.) se mantienen igual

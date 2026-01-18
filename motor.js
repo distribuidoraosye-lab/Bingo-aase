@@ -5,7 +5,7 @@ const ANIMAL_MAP_LOTTO={'0':{n:"Delfín",i:"\u{1F42C}"},'00':{n:"Ballena",i:"\u{
 const firebaseConfig = { apiKey: "AIzaSyDVPFhi9Vwk5DRhMOVqHPArppe-1gG1Gbw", authDomain: "bingo-nuevo.firebaseapp.com", databaseURL: "https://bingo-nuevo-default-rtdb.firebaseio.com", projectId: "bingo-nuevo", storageBucket: "bingo-nuevo-firebasestorage.app", messagingSenderId: "519445444132", appId: "1:519445444132:web:1dd8327222a6472f654ab1" };
 firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.database();
 
-// VARIABLES GLOBALES
+// VARIABLES GLOBALES (Y NUEVAS PARA SORTEO)
 let userBalance=0, serverTimeOffset=0, currentCardPrice=0, currentDate=null, globalLimit=0, totalSold=0;
 let purchaseState = {totalQty:0, currentCardIndex:0, draftCards:[]}, currentSelection=new Set();
 let selectedLotto=null, selectedLottoAnimals = new Set();
@@ -14,12 +14,13 @@ let isProcessing = false;
 let activeAnimalitosRef=null, activeTripletasRef=null, isTripletaMode=false, tripletaConfig={cost:300,reward:100000};
 let isDupletaMode=false, dupletaConfig={cost:300,reward:18000}, activeDupletasRef=null, dailyResults={}; 
 
-// VARIABLES NUEVAS PARA SORTEO
+// VARIABLES ESPECÍFICAS DE VIDEO
 let userYTPlayer;
 let drawSequence = [];
 let allParticipantsData = [];
 let syncTimer;
 
+// INICIALIZACIÓN
 window.onload=()=>{
     auth.onAuthStateChanged(u=>{ 
         document.getElementById('auth-area').classList.toggle('hidden', !!u);
@@ -32,6 +33,34 @@ window.onload=()=>{
     document.getElementById('withdraw-form').onsubmit=async(e)=>{e.preventDefault(); const a=parseFloat(document.getElementById('withdraw-amount').value); if(a>userBalance) return alert("Saldo insuficiente"); const d = {amount:a, tlf:document.getElementById('w-tlf').value, cedula:document.getElementById('w-cedula').value, banco:document.getElementById('w-banco').value, uid:auth.currentUser.uid, name:auth.currentUser.displayName, userPhone:auth.currentUser.email.split('@')[0], status:'PENDING', timestamp:firebase.database.ServerValue.TIMESTAMP}; await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>(c||0)-a); await db.ref(`users/${auth.currentUser.uid}/balance_pending_withdrawal`).transaction(c=>(c||0)+a); await db.ref('withdrawal_requests').push(d); alert("Enviado"); document.getElementById('withdraw-form-area').style.display='none';};
     db.ref('config/tripleta').on('value', s => { if(s.exists()) tripletaConfig = s.val(); });
     db.ref('config/dupleta').on('value', s => { if(s.exists()) dupletaConfig = s.val(); });
+
+    // CAPTURAR EL SWITCHMODE ORIGINAL UNA VEZ QUE TODO HAYA CARGADO
+    setTimeout(() => {
+        if(window.switchMode && !window.originalSwitchMode) {
+            window.originalSwitchMode = window.switchMode;
+            // SOBRESCRIBIR CON NUESTRA VERSIÓN SEGURA
+            window.switchMode = function(mode) {
+                // 1. Ocultar el panel de video nuevo
+                document.getElementById('section-sorteo-vivo').classList.add('hidden');
+                clearInterval(syncTimer);
+
+                // 2. Si es nuestro modo, lo mostramos
+                if(mode === 'sorteo-vivo') {
+                    // Ocultar los otros a la fuerza por si acaso
+                    document.getElementById('section-bingo').classList.add('hidden');
+                    document.getElementById('section-bingo').style.display = 'none';
+                    document.getElementById('section-animalitos').classList.add('hidden');
+                    document.getElementById('section-animalitos').style.display = 'none';
+                    
+                    document.getElementById('section-sorteo-vivo').classList.remove('hidden');
+                    initAnimatedDraw();
+                } else {
+                    // 3. Si es otro modo, llamamos al original para que haga su trabajo
+                    if(window.originalSwitchMode) window.originalSwitchMode(mode);
+                }
+            };
+        }
+    }, 1000); // Pequeño retraso para asegurar que motor.js cargó
 };
 
 function init(){
@@ -45,36 +74,7 @@ function init(){
 async function syncTime(){try{const r=await fetch('https://worldtimeapi.org/api/timezone/America/Caracas');const d=await r.json();serverTimeOffset=new Date(d.datetime).getTime()-Date.now();}catch(e){}updateGameDate();}
 function updateGameDate(){const now=new Date(Date.now()+serverTimeOffset); if(now.getHours()>=20) now.setDate(now.getDate()+1); currentDateStr=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`; db.ref(`results_log/${currentDateStr}`).on('value',s=>{dailyResults=s.val()||{}; loadMyDailyBets();});}
 
-// *** FUNCIÓN UNIFICADA Y CORREGIDA PARA CAMBIO DE MODO ***
-window.switchMode = function(mode) {
-    // 1. Ocultar TODOS los paneles primero
-    document.getElementById('section-bingo').classList.add('hidden');
-    document.getElementById('section-bingo').style.display = 'none';
-    
-    document.getElementById('section-animalitos').classList.add('hidden');
-    document.getElementById('section-animalitos').style.display = 'none';
-    
-    document.getElementById('section-sorteo-vivo').classList.add('hidden');
-    
-    // Detener sincronización del sorteo si estaba activa
-    clearInterval(syncTimer);
-    
-    // 2. Mostrar el seleccionado
-    if(mode === 'bingo') {
-        document.getElementById('section-bingo').classList.remove('hidden');
-        document.getElementById('section-bingo').style.display = 'block';
-    } 
-    else if(mode === 'animalitos') {
-        document.getElementById('section-animalitos').classList.remove('hidden');
-        document.getElementById('section-animalitos').style.display = 'block';
-    } 
-    else if(mode === 'sorteo-vivo') {
-        document.getElementById('section-sorteo-vivo').classList.remove('hidden');
-        initAnimatedDraw(); // Iniciar lógica del sorteo
-    }
-};
-
-// --- LÓGICA DEL SORTEO ANIMADO ---
+// --- FUNCIÓN DEL SORTEO ANIMADO ---
 function initAnimatedDraw() {
     db.ref('sorteo_animado_actual').on('value', snap => {
         if(!snap.exists()) return;
@@ -146,7 +146,7 @@ function renderLiveRanking(list) {
     }).join('');
 }
 
-// --- FUNCIONES RESTANTES DEL JUEGO (Ticket Jugado, etc) ---
+// FUNCIONES BÁSICAS DE APUESTA (PLACEBET)
 window.placeBet = async () => {
     if(isProcessing) return; isProcessing = true;
     const time = document.getElementById('lotto-time-select').value;
@@ -204,14 +204,10 @@ window.placeBet = async () => {
             alert("\u2705 ¡Ticket Jugado!");
         }
         selectedLottoAnimals.clear();
-        updateModeUI(); // Asumiendo que esta función existe en tu lógica original
+        if(window.updateModeUI) window.updateModeUI();
     } catch(e) {
         alert(e.message);
     } finally {
         isProcessing = false;
     }
 };
-
-// MANTENER RESTO DE FUNCIONES UI (renderLottoGrid, selectLottery, etc...)
-// NOTA: Para no hacer el código infinito aquí, asumo que tienes las funciones auxiliares de UI.
-// Si las borraste, avísame y te paso el bloque completo de UI también.

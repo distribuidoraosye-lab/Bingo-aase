@@ -36,88 +36,72 @@ function init(){
 }
 
 async function syncTime(){try{const r=await fetch('https://worldtimeapi.org/api/timezone/America/Caracas');const d=await r.json();serverTimeOffset=new Date(d.datetime).getTime()-Date.now();}catch(e){}updateGameDate();}
+function updateGameDate(){const now=new Date(Date.now()+serverTimeOffset); if(now.getHours()>=20) now.setDate(now.getDate()+1); currentDateStr=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`; db.ref(`results_log/${currentDateStr}`).on('value',s=>{dailyResults=s.val()||{}; loadMyDailyBets();});}
 
-function updateGameDate(){
-    const now=new Date(Date.now()+serverTimeOffset); 
-    if(now.getHours()>=20) now.setDate(now.getDate()+1); 
-    const todayStr=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
+window.placeBet = async () => {
+    if(isProcessing) return; isProcessing = true;
+    const time = document.getElementById('lotto-time-select').value;
     
-    // Si es la primera vez o cambia el día real, actualizamos currentDateStr
-    if(!currentDateStr) currentDateStr = todayStr;
-
-    db.ref(`results_log/${currentDateStr}`).on('value',s=>{
-        dailyResults=s.val()||{}; 
-        renderDatePagination(); // Dibujar botones
-        loadMyDailyBets();      // Cargar tickets de la fecha seleccionada
-    });
-}
-
-// --- NUEVAS FUNCIONES DE PAGINACIÓN ---
-
-function renderDatePagination() {
-    const container = document.getElementById('user-date-pagination');
-    if(!container) return;
-    container.innerHTML = '';
-
-    for (let i = 0; i < 3; i++) {
-        const d = new Date(Date.now() + serverTimeOffset);
-        if (new Date().getHours() >= 20) d.setDate(d.getDate() + 1);
-        d.setDate(d.getDate() - i);
-        
-        const dayStr = `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
-        const label = i === 0 ? "Hoy" : (i === 1 ? "Ayer" : dayStr.split('-').slice(0,2).join('/'));
-
-        const btn = document.createElement('button');
-        btn.className = `flex-shrink-0 px-4 py-1 rounded-full text-[10px] font-bold transition-all border-2 ${currentDateStr === dayStr ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-gray-500 border-gray-200'}`;
-        btn.textContent = label;
-        btn.onclick = () => {
-            currentDateStr = dayStr;
-            renderDatePagination();
-            loadMyDailyBets();
-        };
-        container.appendChild(btn);
-    }
-}
-
-function loadMyDailyBets() {
-    if(!auth.currentUser) return;
-    const uid = auth.currentUser.uid;
-    const list = document.getElementById('my-bets-list');
-    if(!list) return;
+    // CALCULAR EL LÍMITE (10 minutos antes)
+    const [hStr, mStr] = time.split(':');
+    let [mins, period] = mStr.split(' ');
+    let hour = parseInt(hStr);
+    if(period === 'PM' && hour < 12) hour += 12;
+    if(period === 'AM' && hour === 12) hour = 0;
     
-    list.innerHTML = '<p class="text-center text-gray-400 text-[10px] py-4 italic">Cargando jugadas...</p>';
+    const drawDate = new Date(Date.now() + serverTimeOffset);
+    drawDate.setHours(hour, parseInt(mins), 0, 0);
+    const limitTimestamp = drawDate.getTime() - (10 * 60 * 1000); 
 
-    db.ref(`bets_animalitos/${currentDateStr}/${uid}`).on('value', s => {
-        const data = s.val();
-        list.innerHTML = '';
-        if(!data) {
-            list.innerHTML = `<p class="text-center text-gray-400 text-[10px] py-4">No hay jugadas para el ${currentDateStr.replace(/-/g,'/')}</p>`;
-            return;
+    try {
+        if(isTripletaMode) {
+            if(selectedLottoAnimals.size !== 3) throw new Error("Selecciona 3 animales.");
+            const cost = tripletaConfig.cost;
+            if(userBalance < cost) throw new Error("Saldo insuficiente");
+            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - cost);
+            await db.ref(`bets_tripletas/${currentDateStr}/${auth.currentUser.uid}`).push({
+                lottery: selectedLotto, time, animals: Array.from(selectedLottoAnimals),
+                amount: cost, status: 'PENDING', limit_timestamp: limitTimestamp,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            alert("\u2705 ¡Tripleta Jugada!");
+        } else if (isDupletaMode) {
+            if(selectedLottoAnimals.size !== 2) throw new Error("Selecciona 2 animales.");
+            const cost = dupletaConfig.cost;
+            if(userBalance < cost) throw new Error("Saldo insuficiente");
+            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - cost);
+            await db.ref(`bets_dupletas/${currentDateStr}/${auth.currentUser.uid}`).push({
+                lottery: "Dupleta", time, animals: Array.from(selectedLottoAnimals),
+                amount: cost, status: 'PENDING', limit_timestamp: limitTimestamp,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            alert("\u2705 ¡Dupleta Jugada!");
+        } else {
+            const amt = parseFloat(document.getElementById('lotto-amount').value);
+            if(selectedLottoAnimals.size === 0 || !amt || amt < 1) throw new Error("Faltan datos");
+            const cost = amt * selectedLottoAnimals.size;
+            if(userBalance < cost) throw new Error("Saldo insuficiente");
+            await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - cost);
+            const updates = {};
+            const baseRef = `bets_animalitos/${currentDateStr}/${auth.currentUser.uid}`;
+            selectedLottoAnimals.forEach(animal => {
+                const k = db.ref(baseRef).push().key;
+                updates[`${baseRef}/${k}`] = {
+                    lottery: selectedLotto, time, animal, amount: amt, status: 'PENDING',
+                    limit_timestamp: limitTimestamp,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                };
+            });
+            await db.ref().update(updates);
+            alert("\u2705 ¡Ticket Jugado!");
         }
+        selectedLottoAnimals.clear();
+        updateModeUI();
+    } catch(e) {
+        alert(e.message);
+    } finally {
+        isProcessing = false;
+    }
+};
 
-        Object.entries(data).reverse().forEach(([key, b]) => {
-            const sk = b.time.replace(/:/g, '-').replace(/\./g, '');
-            const res = (dailyResults[b.lottery] || {})[sk];
-            
-            const card = document.createElement('div');
-            card.className = `${b.status === 'WIN' ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100'} p-2 rounded-lg border shadow-sm flex justify-between items-center`;
-            card.innerHTML = `
-                <div>
-                    <div class="font-bold text-indigo-900 text-xs">${b.lottery} <span class="text-[9px] text-gray-400">${b.time}</span></div>
-                    <div class="text-[10px]">${b.status === 'WIN' ? '<b class="text-green-600">¡GANASTE!</b>' : (b.status === 'LOST' ? '<span class="text-red-400">No acertado</span>' : '<span class="text-gray-400">Pendiente</span>')} Animal: <b>#${b.animal}</b></div>
-                </div>
-                <div class="text-right">
-                    <div class="font-bold text-gray-800">${b.amount} Bs</div>
-                    <div class="text-[9px] text-gray-400">Res: ${res ? '#'+res : '--'}</div>
-                </div>`;
-            list.appendChild(card);
-        });
-    });
-}
-
-function switchMode(mode) {
-    document.getElementById('game-selector').classList.add('hidden');
-    document.getElementById(`section-${mode}`).classList.remove('hidden');
-}
-
-// ... Mantén el resto de tus funciones como placeBet() abajo ...
+// ... Resto de funciones (renderLottoGrid, updateModeUI, loadMyDailyBets, etc.) se mantienen igual

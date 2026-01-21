@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('recharge-btn').onclick=()=>window.open("https://wa.me/584220153364?text=Quiero%20recargar%20saldo", '_blank');
     document.getElementById('withdraw-btn').onclick=()=>{document.getElementById('withdraw-form-area').style.display='flex';};
     document.getElementById('withdraw-form').onsubmit=async(e)=>{e.preventDefault(); const a=parseFloat(document.getElementById('withdraw-amount').value); if(a>userBalance) return alert("Saldo insuficiente"); const d = {amount:a, tlf:document.getElementById('w-tlf').value, cedula:document.getElementById('w-cedula').value, banco:document.getElementById('w-banco').value, uid:auth.currentUser.uid, name:auth.currentUser.displayName, userPhone:auth.currentUser.email.split('@')[0], status:'PENDING', timestamp:firebase.database.ServerValue.TIMESTAMP}; await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>(c||0)-a); await db.ref(`users/${auth.currentUser.uid}/balance_pending_withdrawal`).transaction(c=>(c||0)+a); await db.ref('withdrawal_requests').push(d); alert("Enviado"); document.getElementById('withdraw-form-area').style.display='none';};
-    initTicker(); db.ref('config/tripleta').on('value', s => { if(s.exists()) tripletaConfig = s.val(); });
+    
+    initTicker(); 
+    db.ref('config/tripleta').on('value', s => { if(s.exists()) tripletaConfig = s.val(); });
 });
 
 function initTicker(){const t=document.getElementById('ticker-content'); if(t){const names=["Carlos R.","Maria G.","Jose L.","Ana P.","Luis M.","Elena S."]; const actions=[{label:"Ganó",min:400,max:2500,icon:"fas fa-ticket-alt"},{label:"Tripleta",min:100000,max:100000,icon:"fas fa-layer-group"}]; let h=""; for(let i=0;i<30;i++){const n=names[Math.floor(Math.random()*names.length)]; const act=actions[Math.floor(Math.random()*actions.length)]; const a=Math.floor(Math.random()*(act.max-act.min+1))+act.min; h+=`<div class="ticker__item"><i class="${act.icon}"></i> ${n} <span class="ticker__action">${act.label}</span>: <span class="ticker__amount">${a.toLocaleString('es-VE')} Bs</span></div>`;} t.innerHTML=h;}}
@@ -53,7 +55,24 @@ function init(){
 function startCountdown(){setInterval(()=>{const now=new Date(); let t=new Date(); t.setHours(20,0,0,0); if(now>t) t.setDate(t.getDate()+1); const d=t-now, h=Math.floor(d/3600000), m=Math.floor((d%3600000)/60000), s=Math.floor((d%60000)/1000); document.getElementById('countdown-timer').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);}
 async function syncTime(){try{const r=await fetch('https://worldtimeapi.org/api/timezone/America/Caracas');const d=await r.json();serverTimeOffset=new Date(d.datetime).getTime()-Date.now();}catch(e){}updateGameDate();}
 function updateGameDate(){const now=new Date(Date.now()+serverTimeOffset); if(now.getHours()>=20) now.setDate(now.getDate()+1); currentDateStr=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`; document.getElementById('game-date-display').textContent=currentDateStr; db.ref(`results_log/${currentDateStr}`).on('value',s=>{dailyResults=s.val()||{}; loadMyDailyBets();}); loadMyDailyBets();}
-function switchMode(t){['section-bingo','section-animalitos'].forEach(x=>{document.getElementById(x).classList.add('hidden');document.getElementById(x).style.display='none';}); document.getElementById(`section-${t}`).classList.remove('hidden'); document.getElementById(`section-${t}`).style.display='block'; document.getElementById('game-selector').classList.add('hidden');}
+
+// --- FUNCIÓN switchMode ACTUALIZADA PARA OCULTAR EL BOTÓN EN ANIMALITOS ---
+function switchMode(t){
+    ['section-bingo','section-animalitos'].forEach(x=>{
+        document.getElementById(x).classList.add('hidden');
+        document.getElementById(x).style.display='none';
+    }); 
+    document.getElementById(`section-${t}`).classList.remove('hidden'); 
+    document.getElementById(`section-${t}`).style.display='block'; 
+    document.getElementById('game-selector').classList.add('hidden');
+
+    const btn = document.getElementById('main-live-btn');
+    if(btn) {
+        if(t === 'animalitos') btn.style.display = 'none'; // Safer to use direct style manipulation here
+        else btn.style.display = 'block';
+    }
+}
+
 function updateUrgency(){const b=document.getElementById('urgency-bar-fixed'); if(currentCardPrice>0){b.classList.remove('hidden'); let r=globalLimit-totalSold; document.getElementById('urgency-text').textContent=(r<50&&globalLimit>0)?`¡SOLO ${r} DISPONIBLES!`:`${totalSold}/${globalLimit} VENDIDOS`;}else{b.classList.add('hidden');}}
 window.openTripletaModal=()=>{document.getElementById('modal-tripletas').style.display='flex'; loadMyDailyBets();}
 window.openDupletaModal=()=>{document.getElementById('modal-dupletas').style.display='flex'; loadMyDailyBets();}

@@ -20,11 +20,11 @@ let purchaseState = {totalQty:0, currentCardIndex:0, draftCards:[]}, currentSele
 let selectedLotto=null, selectedLottoAnimals = new Set();
 let currentDateStr = "", miniGameStatus = 'closed', currentLimits = { general: 700, guacharo: 350 };
 let isProcessing = false;
+let freeBingoCredits = 0; // NUEVA VARIABLE PARA CREDITOS GRATIS
 
 let activeAnimalitosRef=null, activeTripletasRef=null, isTripletaMode=false, tripletaConfig={cost:300,reward:100000};
 let isDupletaMode=false, dupletaConfig={cost:300,reward:18000}, activeDupletasRef=null, dailyResults={}; 
 
-// --- INICIO OPTIMIZADO (DOMContentLoaded) ---
 document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged(u=>{ 
         document.getElementById('auth-area').classList.toggle('hidden', !!u);
@@ -37,16 +37,31 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('recharge-btn').onclick=()=>window.open("https://wa.me/584220153364?text=Quiero%20recargar%20saldo", '_blank');
     document.getElementById('withdraw-btn').onclick=()=>{document.getElementById('withdraw-form-area').style.display='flex';};
     document.getElementById('withdraw-form').onsubmit=async(e)=>{e.preventDefault(); const a=parseFloat(document.getElementById('withdraw-amount').value); if(a>userBalance) return alert("Saldo insuficiente"); const d = {amount:a, tlf:document.getElementById('w-tlf').value, cedula:document.getElementById('w-cedula').value, banco:document.getElementById('w-banco').value, uid:auth.currentUser.uid, name:auth.currentUser.displayName, userPhone:auth.currentUser.email.split('@')[0], status:'PENDING', timestamp:firebase.database.ServerValue.TIMESTAMP}; await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>(c||0)-a); await db.ref(`users/${auth.currentUser.uid}/balance_pending_withdrawal`).transaction(c=>(c||0)+a); await db.ref('withdrawal_requests').push(d); alert("Enviado"); document.getElementById('withdraw-form-area').style.display='none';};
-    
-    initTicker(); 
-    db.ref('config/tripleta').on('value', s => { if(s.exists()) tripletaConfig = s.val(); });
+    initTicker(); db.ref('config/tripleta').on('value', s => { if(s.exists()) tripletaConfig = s.val(); });
 });
 
 function initTicker(){const t=document.getElementById('ticker-content'); if(t){const names=["Carlos R.","Maria G.","Jose L.","Ana P.","Luis M.","Elena S."]; const actions=[{label:"Ganó",min:400,max:2500,icon:"fas fa-ticket-alt"},{label:"Tripleta",min:100000,max:100000,icon:"fas fa-layer-group"}]; let h=""; for(let i=0;i<30;i++){const n=names[Math.floor(Math.random()*names.length)]; const act=actions[Math.floor(Math.random()*actions.length)]; const a=Math.floor(Math.random()*(act.max-act.min+1))+act.min; h+=`<div class="ticker__item"><i class="${act.icon}"></i> ${n} <span class="ticker__action">${act.label}</span>: <span class="ticker__amount">${a.toLocaleString('es-VE')} Bs</span></div>`;} t.innerHTML=h;}}
 function init(){
     if(!auth.currentUser) return;
     document.getElementById('user-display-name').textContent = auth.currentUser.displayName;
+    
+    // LISTENERS SALDO Y CREDITOS
     db.ref(`users/${auth.currentUser.uid}/balance`).on('value',s=>{userBalance=s.val()||0; document.getElementById('balance-display').textContent=`Bs ${userBalance.toFixed(2)}`;});
+    
+    // LISTENER PARA TICKETS GRATIS
+    db.ref(`users/${auth.currentUser.uid}/free_bingo_credits`).on('value', s => {
+        freeBingoCredits = s.val() || 0;
+        const badge = document.getElementById('free-ticket-badge');
+        if(badge) {
+            if(freeBingoCredits > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = `¡TIENES ${freeBingoCredits} GRATIS!`;
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    });
+
     db.ref('config/limits').on('value', s => { if(s.exists()) currentLimits = s.val(); });
     syncTime(); startCountdown();
     db.ref('draw_status').on('value', s=>{ const d = s.val() || {}; currentDate = d.date; if(d.status==='active') { db.ref(`draw_details/${d.date}`).once('value', v=>{ const val=v.val()||{}; currentCardPrice=val.price||0; globalLimit=val.limit||0; if(document.getElementById('starter-card-price')) document.getElementById('starter-card-price').textContent=currentCardPrice.toFixed(2); updateUrgency(); }); } });
@@ -56,7 +71,6 @@ function startCountdown(){setInterval(()=>{const now=new Date(); let t=new Date(
 async function syncTime(){try{const r=await fetch('https://worldtimeapi.org/api/timezone/America/Caracas');const d=await r.json();serverTimeOffset=new Date(d.datetime).getTime()-Date.now();}catch(e){}updateGameDate();}
 function updateGameDate(){const now=new Date(Date.now()+serverTimeOffset); if(now.getHours()>=20) now.setDate(now.getDate()+1); currentDateStr=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`; document.getElementById('game-date-display').textContent=currentDateStr; db.ref(`results_log/${currentDateStr}`).on('value',s=>{dailyResults=s.val()||{}; loadMyDailyBets();}); loadMyDailyBets();}
 
-// --- FUNCIÓN switchMode ACTUALIZADA PARA OCULTAR EL BOTÓN EN ANIMALITOS ---
 function switchMode(t){
     ['section-bingo','section-animalitos'].forEach(x=>{
         document.getElementById(x).classList.add('hidden');
@@ -68,7 +82,7 @@ function switchMode(t){
 
     const btn = document.getElementById('main-live-btn');
     if(btn) {
-        if(t === 'animalitos') btn.style.display = 'none'; // Safer to use direct style manipulation here
+        if(t === 'animalitos') btn.style.display = 'none'; 
         else btn.style.display = 'block';
     }
 }
@@ -81,7 +95,44 @@ if(document.getElementById('start-purchase-btn')) document.getElementById('start
 function startBingoSel(n){ purchaseState={totalQty:n, currentCardIndex:0, draftCards:[]}; document.getElementById('quantity-selector-area').classList.add('hidden'); document.getElementById('animal-selector-area').classList.remove('hidden'); renderBingoSel(); }
 function renderBingoSel(){ currentSelection.clear(); document.getElementById('current-card-num').textContent=purchaseState.currentCardIndex+1; document.getElementById('confirm-card-btn').disabled=true; document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent="0/15"; const g=document.getElementById('animal-selection-grid'); g.innerHTML=''; for(let i=1; i<=25; i++) { const b=document.createElement('div'); b.className="select-animal-btn"; b.innerHTML = `<span class="emoji-font">${ANIMAL_MAP_BINGO[i].i}</span>${i}-${ANIMAL_MAP_BINGO[i].n}`; b.onclick=()=>{ if(currentSelection.has(i)) { currentSelection.delete(i); b.classList.remove('selected'); } else if(currentSelection.size<15) { currentSelection.add(i); b.classList.add('selected'); } const done = currentSelection.size === 15; document.getElementById('confirm-card-btn').disabled = !done; if(done) document.getElementById('confirm-card-btn').classList.remove('opacity-50', 'cursor-not-allowed'); else document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent = currentSelection.size + "/15"; }; g.appendChild(b); } }
 window.fillRandomAnimals=()=>{ currentSelection.clear(); Array.from({length:25},(_,i)=>i+1).sort(()=>Math.random()-0.5).slice(0,15).forEach(x=>currentSelection.add(x)); const ds=document.getElementById('animal-selection-grid').children; for(let i=0;i<25;i++) if(currentSelection.has(i+1)) ds[i].classList.add('selected'); else ds[i].classList.remove('selected'); document.getElementById('selection-counter').textContent="15/15"; document.getElementById('confirm-card-btn').disabled=false; document.getElementById('confirm-card-btn').classList.remove('opacity-50'); }
-window.confirmCurrentCard=async()=>{ purchaseState.draftCards.push(Array.from(currentSelection).sort((a,b)=>a-b)); purchaseState.currentCardIndex++; if(purchaseState.currentCardIndex<purchaseState.totalQty) renderBingoSel(); else { const cost=purchaseState.totalQty*currentCardPrice; if(cost>userBalance) return alert("Saldo insuficiente"); await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c=>c-cost); const cards=purchaseState.draftCards.map(n=>({numbers:n, id:sha256(JSON.stringify(n)).substring(0,8)})); await Promise.all(cards.map(c=>db.ref('bingo_aprobados_estelar').push({numbers:c.numbers, id:c.id, uid:auth.currentUser.uid, date:currentDate, status:'APROBADO'}))); document.getElementById('bot-message-display').innerHTML = `\u2705 Listo. ${purchaseState.totalQty} cartones.`; setTimeout(() => document.getElementById('chat-flow-area').classList.add('hidden'), 3000); document.getElementById('my-cards-btn').click(); } }
+
+// --- FUNCION DE COMPRA ACTUALIZADA PARA USAR CREDITOS GRATIS ---
+window.confirmCurrentCard=async()=>{ 
+    purchaseState.draftCards.push(Array.from(currentSelection).sort((a,b)=>a-b)); 
+    purchaseState.currentCardIndex++; 
+    
+    if(purchaseState.currentCardIndex<purchaseState.totalQty) {
+        renderBingoSel(); 
+    } else { 
+        // CALCULO DEL COSTO REAL (USANDO CREDITOS)
+        let paidCount = purchaseState.totalQty;
+        let usedFree = 0;
+        
+        if(freeBingoCredits > 0) {
+            usedFree = Math.min(purchaseState.totalQty, freeBingoCredits);
+            paidCount = purchaseState.totalQty - usedFree;
+        }
+
+        const cost = paidCount * currentCardPrice; 
+        
+        if(cost > userBalance) return alert("Saldo insuficiente"); 
+        
+        // Descontar saldo monetario
+        await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c || 0) - cost);
+        
+        // Descontar créditos gratis si se usaron
+        if(usedFree > 0) {
+            await db.ref(`users/${auth.currentUser.uid}/free_bingo_credits`).transaction(c => (c || 0) - usedFree);
+        }
+
+        const cards = purchaseState.draftCards.map(n => ({numbers:n, id:sha256(JSON.stringify(n)).substring(0,8)})); 
+        await Promise.all(cards.map(c=>db.ref('bingo_aprobados_estelar').push({numbers:c.numbers, id:c.id, uid:auth.currentUser.uid, date:currentDate, status:'APROBADO'}))); 
+        
+        document.getElementById('bot-message-display').innerHTML = `\u2705 Listo. ${purchaseState.totalQty} cartones.`; 
+        setTimeout(() => document.getElementById('chat-flow-area').classList.add('hidden'), 3000); 
+        document.getElementById('my-cards-btn').click(); 
+    } 
+}
 
 window.loadMyBingoHistory = () => {
     document.getElementById('carton-display-container').classList.remove('hidden'); const listCards = document.getElementById('carton-list'); listCards.innerHTML=''; 
@@ -169,7 +220,12 @@ window.placeBet = async () => {
             const cost = tripletaConfig.cost; if(userBalance < cost) throw new Error("Saldo insuficiente");
             await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c||0) - cost);
             await db.ref(`bets_tripletas/${currentDateStr}/${auth.currentUser.uid}`).push({ lottery: selectedLotto, time, animals: Array.from(selectedLottoAnimals), amount: cost, status: 'PENDING', limit_timestamp: limitTimestamp, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            alert("\u2705 ¡Tripleta Jugada!");
+            
+            // --- REGALAR TICKET DE BINGO POR JUGAR TRIPLETA ---
+            await db.ref(`users/${auth.currentUser.uid}/free_bingo_credits`).transaction(c => (c || 0) + 1);
+            alert("\u2705 ¡Tripleta Jugada! \n🎁 Tienes 1 Ticket de Bingo GRATIS.");
+            // --------------------------------------------------
+
         } else if (isDupletaMode) {
             if(selectedLottoAnimals.size !== 2) throw new Error("Debes seleccionar 2 animales.");
             const cost = dupletaConfig.cost; if(userBalance < cost) throw new Error("Saldo insuficiente");

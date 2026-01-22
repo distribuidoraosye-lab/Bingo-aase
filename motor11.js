@@ -246,7 +246,9 @@ window.watchHistory = (type, dateInputVal) => {
         ref.on('value', s => {
             container.innerHTML = '';
             if (!s.exists()) { container.innerHTML = `<div class="text-center text-gray-400 p-8 border-2 border-dashed border-gray-200 rounded-xl"><i class="far fa-calendar-times text-4xl mb-2 opacity-30"></i><br>Sin jugadas el ${dbDateStr}</div>`; return; }
-            const bets = []; s.forEach(c => bets.push(c.val()));
+            const bets = []; 
+            // CORRECCIÓN APLICADA: Se agregaron las llaves para que no se detenga la búsqueda
+            s.forEach(c => { bets.push(c.val()); });
             bets.reverse().forEach(b => { renderHistoryTicket(type, b, container, dbDateStr); });
         });
     });

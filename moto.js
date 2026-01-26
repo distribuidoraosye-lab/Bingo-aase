@@ -164,13 +164,13 @@ window.copyToClipboard = (elementId) => {
 }
 
 // ==========================================
-//  LÓGICA DE VERIFICACIÓN (MEJORADA)
+//  LÓGICA DE VERIFICACIÓN (ESTRICTA)
 // ==========================================
 window.verifyPayment = async () => {
     if(!auth.currentUser) return;
     
     const refInput = document.getElementById('pay-ref').value.trim();
-    // Limpia el monto para aceptar comas y puntos
+    // Limpieza de monto para comas y puntos
     const rawAmount = document.getElementById('pay-amount').value.replace(',', '.');
     const amountInput = parseFloat(rawAmount);
     
@@ -183,14 +183,18 @@ window.verifyPayment = async () => {
     const feedback = document.getElementById('verify-feedback');
     const btnSupport = document.getElementById('btn-support-manual');
 
+    // BLOQUEO INICIAL: Si el número no tiene 7 dígitos, no procesa
+    if(!p_numero || p_numero.length < 7) { 
+        alert("Debes ingresar los 7 dígitos de tu número de teléfono."); 
+        return; 
+    }
     if(refInput.length < 5) { alert("Revisa la referencia (mínimo 5 números)."); return; }
     if(!amountInput || amountInput <= 0) { alert("Monto inválido."); return; }
-    if(p_numero.length < 7) { alert("Número de teléfono incompleto."); return; }
 
     btn.disabled = true; 
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> PROCESANDO...';
     feedback.classList.remove('hidden');
-    feedback.innerHTML = "Buscando pago reciente...";
+    feedback.innerHTML = "Validando teléfono y referencia...";
     btnSupport.classList.add('hidden');
 
     try {
@@ -209,14 +213,14 @@ window.verifyPayment = async () => {
                     if (!data || !data.mensaje_banco) return null;
                     const txt = data.mensaje_banco.toLowerCase();
                     
-                    // VALIDACIÓN: Referencia + Monto Exacto + Teléfono
+                    // REGLA ESTRICTA: El teléfono DEBE estar contenido en el mensaje del banco
+                    const hasPhone = txt.includes(p_numero); 
                     const hasRef = txt.includes(refInput);
-                    // Formateamos para buscar tanto con punto como con coma
                     const formattedAmt = amountInput.toFixed(2).replace('.', ',');
                     const hasMonto = txt.includes(formattedAmt) || txt.includes(amountInput.toString());
-                    const hasPhone = txt.includes(p_numero); 
                     
-                    if (hasRef && hasMonto && hasPhone) {
+                    // Solo si coinciden los tres campos se marca como válido
+                    if (hasPhone && hasRef && hasMonto) {
                         if (!data.status || data.status === 'pendiente_revision') return { key, status: 'valid' };
                         if (data.status === 'claimed' && data.claimed_by === auth.currentUser.uid) return { key, status: 'already_mine' };
                         if (data.status === 'claimed') return { key, status: 'fraud' };
@@ -248,14 +252,14 @@ window.verifyPayment = async () => {
                 await db.ref(`pagos_entrantes/${matchFound.key}`).update({
                     status: 'claimed',
                     claimed_by: auth.currentUser.uid,
-                    phone_submitted: fullPhone,
+                    phone_verified: fullPhone,
                     claimed_at: firebase.database.ServerValue.TIMESTAMP
                 });
                 await db.ref(`users/${auth.currentUser.uid}/balance`).transaction(c => (c || 0) + amountInput);
                 showSuccess(amountInput, "Recarga exitosa.");
             } catch (e) { showError("ERROR", "No se pudo procesar."); }
         } else {
-            showError("NO ENCONTRADO", "No hallamos el pago con esos datos exactos.");
+            showError("NO ENCONTRADO", "Datos incorrectos. Verifica que el teléfono y la referencia coincidan con tu pago.");
         }
     } catch (e) { btn.disabled = false; btn.innerHTML = 'Error de conexión'; }
 

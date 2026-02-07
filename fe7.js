@@ -22,7 +22,7 @@ const VENEZUELA_BANKS = [
     "Banco de Venezuela", "Banesco", "Mercantil", "Provincial", "Bancamiga", 
     "Banco Nacional de Crédito (BNC)", "Banco del Tesoro", "Banco Exterior", 
     "Bancaribe", "Banco Plaza", "Banplus", "Banco Caroní", "100% Banco", 
-    "Sofitasa", "Del Sur", "Banco Activo", "Bicentenario"
+    "Sofitasa", "Del Sur", "Banco Activo", "Banco Digital de los trabajadores"
 ];
 
 let SYSTEM_CONFIG = {

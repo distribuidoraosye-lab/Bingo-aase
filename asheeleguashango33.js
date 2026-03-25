@@ -1,6 +1,6 @@
 /* ============================================================
    BINGO TEXIER - CÓDIGO PRINCIPAL (francisca.js)
-   Versión: Final - Promo Blindada + Torneo Express Independiente + Video Custom
+   Versión: Final - Promo Blindada + Torneo Express Independiente + Video Custom + Cierres y Ranking
    ============================================================ */
 
 /* --- 1. CONSTANTES Y MAPAS DE DATOS --- */
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             banco: selectedBank, 
             uid:auth.currentUser.uid, 
             name:auth.currentUser.displayName, 
-            userPhone:auth.currentUser.email.split('@')[0], 
+            userPhone:auth.currentUser.email.split('@'), 
             status:'PENDING', 
             request_timestamp: firebase.database.ServerValue.TIMESTAMP,
             estimated_process_timestamp: estimatedTime.getTime()
@@ -188,25 +188,47 @@ function init(){
     
     setInterval(() => {
         const now = new Date(Date.now() + serverTimeOffset);
-        let target = new Date(now);
-        target.setHours(12, 50, 0, 0); 
         
-        const display = document.getElementById('torneo-countdown');
+        // --- 1. RELOJ TORNEO EXPRESS ---
+        let targetTorneo = new Date(now);
+        targetTorneo.setHours(12, 50, 0, 0); 
+        const displayTorneo = document.getElementById('torneo-countdown');
 
-        if(now > target && now.getHours() < 18) {
-            if(display && display.textContent !== "\u00A1EN JUEGO!") display.textContent = "\u00A1EN JUEGO!";
+        if(now > targetTorneo && now.getHours() < 18) {
+            if(displayTorneo && displayTorneo.textContent !== "\u00A1EN JUEGO!") displayTorneo.textContent = "\u00A1EN JUEGO!";
         } else {
-            if(now.getHours() >= 18) target.setDate(target.getDate() + 1);
-            const diff = target - now;
-            if(diff > 0 && display) {
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                const s = Math.floor((diff % 60000) / 1000);
+            if(now.getHours() >= 18) targetTorneo.setDate(targetTorneo.getDate() + 1);
+            const diffTorneo = targetTorneo - now;
+            if(diffTorneo > 0 && displayTorneo) {
+                const h = Math.floor(diffTorneo / 3600000);
+                const m = Math.floor((diffTorneo % 3600000) / 60000);
+                const s = Math.floor((diffTorneo % 60000) / 1000);
                 const timeText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                if(display.textContent !== timeText) display.textContent = timeText;
+                if(displayTorneo.textContent !== timeText) displayTorneo.textContent = timeText;
             }
         }
         updateTorneoButtonState(); 
+
+        // --- 2. RELOJ BINGO ESTELAR (Cierre a las 7 PM) ---
+        let targetBingo = new Date(now);
+        targetBingo.setHours(19, 0, 0, 0); // 19 = 7:00 PM
+        const displayBingo = document.getElementById('bingo-countdown');
+
+        if(now > targetBingo && now.getHours() < 20) { // Hasta las 8 PM que salta el dia
+            if(displayBingo && displayBingo.textContent !== "\u00A1CERRADAS!") displayBingo.textContent = "\u00A1CERRADAS!";
+        } else {
+            if(now.getHours() >= 20) targetBingo.setDate(targetBingo.getDate() + 1);
+            const diffBingo = targetBingo - now;
+            if(diffBingo > 0 && displayBingo) {
+                const h = Math.floor(diffBingo / 3600000);
+                const m = Math.floor((diffBingo % 3600000) / 60000);
+                const s = Math.floor((diffBingo % 60000) / 1000);
+                const timeText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                if(displayBingo.textContent !== timeText) displayBingo.textContent = timeText;
+            }
+        }
+        updateBingoButtonState();
+
     }, 1000);
 
     db.ref('draw_status').on('value', s=>{ 
@@ -306,7 +328,7 @@ window.verifyPayment = async () => {
         const used = await db.ref(`referencias_usadas/${refInput}`).once('value');
         if (used.exists()) { showError("DENEGADO", "Esta referencia ya fue utilizada."); return; }
 
-        const formatVE = (num) => { let parts = num.toFixed(2).split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); return parts.join(','); }
+        const formatVE = (num) => { let parts = num.toFixed(2).split('.'); parts = parts.replace(/\B(?=(\d{3})+(?!\d))/g, "."); return parts.join(','); }
         const exacto = formatVE(amtInp);
         const simple = amtInp.toFixed(2).replace('.', ',');
         const crudo = amtInp.toFixed(2);
@@ -441,8 +463,37 @@ function switchMode(t){
 function updateUrgency(){const b=document.getElementById('urgency-bar-fixed'); if(currentCardPrice>0){b.classList.remove('hidden'); let r=globalLimit-totalSold; document.getElementById('urgency-text').textContent=(r<50&&globalLimit>0)?`\u00A1SOLO ${r} DISPONIBLES!`:`${totalSold}/${globalLimit} VENDIDOS`;}else{b.classList.add('hidden');}}
 
 // BINGO LOGIC
+function updateBingoButtonState() {
+    const buyBtn = document.getElementById('start-purchase-btn');
+    if(!buyBtn) return;
+
+    const now = new Date(Date.now() + serverTimeOffset);
+    let target = new Date(now);
+    target.setHours(19, 0, 0, 0); // Cierre a las 7 PM
+    const isPastDeadline = (now > target && now.getHours() < 20);
+
+    let badgeHtml = `<span id="free-ticket-badge" class="${freeBingoCredits > 0 ? '' : 'hidden'} absolute top-0 right-0 bg-green-500 text-white text-[9px] font-black px-2 py-1 rounded-bl-lg animate-pulse">\u00A1TIENES ${freeBingoCredits > 0 ? freeBingoCredits : ''} GRATIS!</span>`;
+
+    if (isPastDeadline || miniGameStatus !== 'active') {
+        buyBtn.disabled = true;
+        buyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
+        buyBtn.classList.remove('bg-bingo-accent', 'hover:bg-orange-600');
+        buyBtn.innerHTML = (isPastDeadline ? "CERRADO HASTA MA\u00D1ANA (7PM)" : "VENTA PAUSADA/CERRADA") + badgeHtml;
+    } else {
+        buyBtn.disabled = false;
+        buyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
+        buyBtn.classList.add('bg-bingo-accent', 'hover:bg-orange-600');
+        buyBtn.innerHTML = "Comprar Cartones" + badgeHtml;
+    }
+}
+
 if(document.getElementById('start-purchase-btn')) document.getElementById('start-purchase-btn').onclick=()=>{
-    if(miniGameStatus === 'paused') return alert("\u23F8\uFE0F La venta est\u00E1 pausada temporalmente."); 
+    const now = new Date(Date.now() + serverTimeOffset);
+    let target = new Date(now);
+    target.setHours(19, 0, 0, 0);
+    if(now > target && now.getHours() < 20) return alert("\u23F3 Las ventas de cartones han cerrado por hoy (7:00 PM).");
+    if(miniGameStatus !== 'active') return alert("\u23F8\uFE0F La venta est\u00E1 pausada temporalmente."); 
+    
     document.getElementById('chat-flow-area').classList.remove('hidden'); 
     document.getElementById('bot-message-display').innerHTML="\u00BFCu\u00E1ntos cartones?"; 
     document.getElementById('quantity-selector-area').classList.remove('hidden'); 
@@ -456,6 +507,7 @@ if(document.getElementById('start-purchase-btn')) document.getElementById('start
         q.appendChild(b); 
     }
 }
+
 function startBingoSel(n){ purchaseState={totalQty:n, currentCardIndex:0, draftCards:[]}; document.getElementById('quantity-selector-area').classList.add('hidden'); document.getElementById('animal-selector-area').classList.remove('hidden'); renderBingoSel(); }
 function renderBingoSel(){ currentSelection.clear(); document.getElementById('current-card-num').textContent=purchaseState.currentCardIndex+1; document.getElementById('confirm-card-btn').disabled=true; document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent="0/15"; const g=document.getElementById('animal-selection-grid'); g.innerHTML=''; for(let i=1; i<=25; i++) { const b=document.createElement('div'); b.className="select-animal-btn"; b.innerHTML = `<span class="emoji-font">${ANIMAL_MAP_BINGO[i].i}</span>${i}-${ANIMAL_MAP_BINGO[i].n}`; b.onclick=()=>{ if(currentSelection.has(i)) { currentSelection.delete(i); b.classList.remove('selected'); } else if(currentSelection.size<15) { currentSelection.add(i); b.classList.add('selected'); } const done = currentSelection.size === 15; document.getElementById('confirm-card-btn').disabled = !done; if(done) document.getElementById('confirm-card-btn').classList.remove('opacity-50', 'cursor-not-allowed'); else document.getElementById('confirm-card-btn').classList.add('opacity-50', 'cursor-not-allowed'); document.getElementById('selection-counter').textContent = currentSelection.size + "/15"; }; g.appendChild(b); } }
 window.fillRandomAnimals=()=>{ currentSelection.clear(); Array.from({length:25},(_,i)=>i+1).sort(()=>Math.random()-0.5).slice(0,15).forEach(x=>currentSelection.add(x)); const ds=document.getElementById('animal-selection-grid').children; for(let i=0;i<25;i++) if(currentSelection.has(i+1)) ds[i].classList.add('selected'); else ds[i].classList.remove('selected'); document.getElementById('selection-counter').textContent="15/15"; document.getElementById('confirm-card-btn').disabled=false; document.getElementById('confirm-card-btn').classList.remove('opacity-50'); }
@@ -483,7 +535,7 @@ window.confirmCurrentCard=async()=>{
         document.getElementById('chat-flow-area').classList.add('hidden'); 
         
         const modalHtml = `
-            <div id="purchase-success-modal" class="fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center">
+            <div id="purchase-success-modal" class="fixed inset-0 bg-black/80 z- flex items-center justify-center">
                 <div class="bg-white p-6 rounded-2xl w-11/12 max-w-sm text-center shadow-2xl border-t-4 border-green-500">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-check text-3xl text-green-500"></i>
@@ -614,8 +666,8 @@ window.placeBet = async () => {
     } catch(e) { alert(e.message); } finally { isProcessing = false; }
 };
 
-window.openTripletaModal = () => { document.getElementById('modal-tripletas').style.display = 'flex'; const todayISO = new Date(Date.now() + serverTimeOffset).toISOString().split('T')[0]; const input = document.getElementById('history-date-trip'); if(input) input.value = todayISO; watchHistory('tripletas', todayISO); }
-window.openDupletaModal = () => { document.getElementById('modal-dupletas').style.display = 'flex'; const todayISO = new Date(Date.now() + serverTimeOffset).toISOString().split('T')[0]; const input = document.getElementById('history-date-dup'); if(input) input.value = todayISO; watchHistory('dupletas', todayISO); }
+window.openTripletaModal = () => { document.getElementById('modal-tripletas').style.display = 'flex'; const todayISO = new Date(Date.now() + serverTimeOffset).toISOString().split('T'); const input = document.getElementById('history-date-trip'); if(input) input.value = todayISO; watchHistory('tripletas', todayISO); }
+window.openDupletaModal = () => { document.getElementById('modal-dupletas').style.display = 'flex'; const todayISO = new Date(Date.now() + serverTimeOffset).toISOString().split('T'); const input = document.getElementById('history-date-dup'); if(input) input.value = todayISO; watchHistory('dupletas', todayISO); }
 
 window.watchHistory = (type, dateInputVal) => {
     if (!auth.currentUser) return;
@@ -748,7 +800,7 @@ function showFloatingToast(status, amount) {
     const msg = isApproved ? `Tu pago de Bs ${amount} ha sido enviado.` : `Se han devuelto Bs ${amount} a tu saldo.`;
 
     const toast = document.createElement('div');
-    toast.className = `fixed top-24 right-4 z-[9999] w-80 p-4 rounded-lg shadow-2xl border-l-4 flex items-start gap-3 transform transition-all duration-500 translate-x-full ${bgColor}`;
+    toast.className = `fixed top-24 right-4 z- w-80 p-4 rounded-lg shadow-2xl border-l-4 flex items-start gap-3 transform transition-all duration-500 translate-x-full ${bgColor}`;
     
     toast.innerHTML = `
         <div class="mt-1"><i class="fas ${icon} ${textColor} text-xl"></i></div>
@@ -1187,8 +1239,7 @@ window.loadTorneoRanking = () => {
                 s.forEach(userNode => {
                     const uid = userNode.key;
                     const userData = usersData[uid] || {};
-                    
-                    const userName = userData.name ? userData.name : 'An\u00FAnimo';
+                    const userName = userData.name ? userData.name : 'An\u00F3nimo';
                     
                     let rawPhone = userData.phone || '';
                     let maskedPhone = '';
@@ -1203,15 +1254,22 @@ window.loadTorneoRanking = () => {
                     userNode.forEach(cardNode => {
                         const card = cardNode.val();
                         let hits = 0;
-                        card.numbers.forEach(n => { if(winningSet.has(String(n))) hits++; });
+                        let hitAnimals = [];
                         
-                        allCards.push({ name: userName, phone: maskedPhone, hits: hits, id: card.id });
+                        card.numbers.forEach(n => { 
+                            if(winningSet.has(String(n))) {
+                                hits++;
+                                hitAnimals.push(n);
+                            }
+                        });
+                        
+                        allCards.push({ name: userName, phone: maskedPhone, hits: hits, id: card.id, hitAnimals: hitAnimals });
                     });
                 });
 
                 allCards.sort((a,b) => b.hits - a.hits);
 
-                const maxHits = allCards.length > 0 ? allCards[0].hits : 0;
+                const maxHits = allCards.length > 0 ? allCards.hits : 0;
 
                 allCards.forEach((p, index) => {
                     let positionHtml = `<span class="font-black text-gray-500 text-lg w-6 text-center">${index + 1}</span>`;
@@ -1222,17 +1280,32 @@ window.loadTorneoRanking = () => {
                         bgClass = "bg-yellow-50";
                     }
 
+                    let hitAnimalsHtml = '';
+                    if (p.hitAnimals && p.hitAnimals.length > 0) {
+                        hitAnimalsHtml = p.hitAnimals.map(n => {
+                            const aInfo = ANIMAL_MAP_LOTTO[String(n)] || {i:'\u2753'};
+                            return `<div class="flex items-center gap-1 bg-green-100 border border-green-500 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold shadow-sm"><span class="text-xs">${aInfo.i}</span> ${n}</div>`;
+                        }).join('');
+                    } else {
+                        hitAnimalsHtml = `<span class="text-[10px] text-gray-400 italic">Sin aciertos a\u00FAn</span>`;
+                    }
+
                     container.innerHTML += `
-                        <div class="flex justify-between items-center p-3 ${bgClass}">
-                            <div class="flex items-center gap-3">
-                                ${positionHtml}
-                                <div>
-                                    <p class="font-bold text-gray-800 text-sm uppercase">${p.name}</p>
-                                    <p class="text-[10px] text-gray-400">ID: #${p.id} | Tlf: ${p.phone}</p>
+                        <div class="flex flex-col p-3 border-b border-gray-200 ${bgClass}">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center gap-3">
+                                    ${positionHtml}
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm uppercase">${p.name}</p>
+                                        <p class="text-[10px] text-gray-400">ID: #${p.id} | Tlf: ${p.phone}</p>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-100 border border-gray-200 px-3 py-1 rounded-lg">
+                                    <p class="text-xs font-black ${p.hits > 0 ? 'text-green-600' : 'text-gray-500'}">${p.hits} pts</p>
                                 </div>
                             </div>
-                            <div class="bg-gray-100 border border-gray-200 px-3 py-1 rounded-lg">
-                                <p class="text-xs font-black ${p.hits > 0 ? 'text-green-600' : 'text-gray-500'}">${p.hits} pts</p>
+                            <div class="pl-9 flex gap-1 flex-wrap">
+                                ${hitAnimalsHtml}
                             </div>
                         </div>
                     `;
@@ -1251,7 +1324,7 @@ let playerLoterias;
 // Cargar la API de YouTube de forma asíncrona
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
+var firstScriptTag = document.getElementsByTagName('script');
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 // Esta función se ejecuta sola cuando la API de YouTube está lista

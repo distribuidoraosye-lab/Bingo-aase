@@ -1,6 +1,6 @@
 /* ============================================================
    BINGO TEXIER - CÓDIGO PRINCIPAL (francisca.js)
-   Versión: Final - Promo Blindada + Torneo Express Independiente + Video Custom + Cierres y Ranking
+   Versión: Final - Promo Blindada + Torneo Express Independiente + Video Custom + Cierres y Ranking + Blindaje 100% Admin
    ============================================================ */
 
 /* --- 1. CONSTANTES Y MAPAS DE DATOS --- */
@@ -209,22 +209,32 @@ function init(){
         }
         updateTorneoButtonState(); 
 
-        // --- 2. RELOJ BINGO ESTELAR (Cierre a las 7 PM) ---
-        let targetBingo = new Date(now);
-        targetBingo.setHours(19, 0, 0, 0); // 19 = 7:00 PM
+        // --- 2. RELOJ BINGO ESTELAR (Cierre a las 7 PM - Blindado) ---
         const displayBingo = document.getElementById('bingo-countdown');
+        const h = now.getHours();
 
-        if(now > targetBingo && now.getHours() < 20) { // Hasta las 8 PM que salta el dia
+        if (h === 19) { 
             if(displayBingo && displayBingo.textContent !== "\u00A1CERRADAS!") displayBingo.textContent = "\u00A1CERRADAS!";
         } else {
-            if(now.getHours() >= 20) targetBingo.setDate(targetBingo.getDate() + 1);
+            let targetBingo = new Date(now);
+            if (h >= 20) {
+                targetBingo.setDate(targetBingo.getDate() + 1);
+            }
+            targetBingo.setHours(19, 0, 0, 0);
+
             const diffBingo = targetBingo - now;
             if(diffBingo > 0 && displayBingo) {
-                const h = Math.floor(diffBingo / 3600000);
-                const m = Math.floor((diffBingo % 3600000) / 60000);
-                const s = Math.floor((diffBingo % 60000) / 1000);
-                const timeText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                if(displayBingo.textContent !== timeText) displayBingo.textContent = timeText;
+                const hh = Math.floor(diffBingo / 3600000);
+                const mm = Math.floor((diffBingo % 3600000) / 60000);
+                const ss = Math.floor((diffBingo % 60000) / 1000);
+                const timeText = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+                
+                // Validamos si el admin ya abrió el sorteo del dia actual
+                if (currentDate !== currentDateStr || miniGameStatus !== 'active') {
+                    if (displayBingo.textContent !== "ESPERANDO SORTEO") displayBingo.textContent = "ESPERANDO SORTEO";
+                } else {
+                    if(displayBingo.textContent !== timeText) displayBingo.textContent = timeText;
+                }
             }
         }
         updateBingoButtonState();
@@ -468,17 +478,23 @@ function updateBingoButtonState() {
     if(!buyBtn) return;
 
     const now = new Date(Date.now() + serverTimeOffset);
-    let target = new Date(now);
-    target.setHours(19, 0, 0, 0); // Cierre a las 7 PM
-    const isPastDeadline = (now > target && now.getHours() < 20);
+    const h = now.getHours();
+    
+    const isSellingHours = (h >= 20 || h < 19);
+    const isCorrectDate = (currentDate === currentDateStr);
 
     let badgeHtml = `<span id="free-ticket-badge" class="${freeBingoCredits > 0 ? '' : 'hidden'} absolute top-0 right-0 bg-green-500 text-white text-[9px] font-black px-2 py-1 rounded-bl-lg animate-pulse">\u00A1TIENES ${freeBingoCredits > 0 ? freeBingoCredits : ''} GRATIS!</span>`;
 
-    if (isPastDeadline || miniGameStatus !== 'active') {
+    if (!isSellingHours || !isCorrectDate || miniGameStatus !== 'active') {
         buyBtn.disabled = true;
         buyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
         buyBtn.classList.remove('bg-bingo-accent', 'hover:bg-orange-600');
-        buyBtn.innerHTML = (isPastDeadline ? "CERRADO HASTA MA\u00D1ANA (7PM)" : "VENTA PAUSADA/CERRADA") + badgeHtml;
+        
+        if(!isCorrectDate || miniGameStatus !== 'active') {
+            buyBtn.innerHTML = "VENTA CERRADA" + badgeHtml;
+        } else {
+            buyBtn.innerHTML = "CERRADO HASTA MA\u00D1ANA" + badgeHtml;
+        }
     } else {
         buyBtn.disabled = false;
         buyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
@@ -489,9 +505,9 @@ function updateBingoButtonState() {
 
 if(document.getElementById('start-purchase-btn')) document.getElementById('start-purchase-btn').onclick=()=>{
     const now = new Date(Date.now() + serverTimeOffset);
-    let target = new Date(now);
-    target.setHours(19, 0, 0, 0);
-    if(now > target && now.getHours() < 20) return alert("\u23F3 Las ventas de cartones han cerrado por hoy (7:00 PM).");
+    const h = now.getHours();
+    if(h === 19) return alert("\u23F3 Las ventas de cartones han cerrado por hoy (7:00 PM).");
+    if(currentDate !== currentDateStr) return alert("\u23F8\uFE0F El administrador a\u00FAn no ha abierto las ventas para el pr\u00F3ximo sorteo.");
     if(miniGameStatus !== 'active') return alert("\u23F8\uFE0F La venta est\u00E1 pausada temporalmente."); 
     
     document.getElementById('chat-flow-area').classList.remove('hidden'); 

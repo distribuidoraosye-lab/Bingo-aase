@@ -325,7 +325,11 @@ window.verifyPayment = async () => {
         const used = await db.ref(`referencias_usadas/${refInput}`).once('value');
         if (used.exists()) { showError("DENEGADO", "Esta referencia ya fue utilizada."); return; }
 
-        const formatVE = (num) => { let parts = num.toFixed(2).split('.'); parts = parts.replace(/\B(?=(\d{3})+(?!\d))/g, "."); return parts.join(','); }
+        const formatVE = (num) => { 
+    let partes = num.toFixed(2).split('.'); 
+    let enteros = partes.replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
+    return enteros + ',' + partes; 
+};
         const exacto = formatVE(amtInp);
         const simple = amtInp.toFixed(2).replace('.', ',');
         const crudo = amtInp.toFixed(2);

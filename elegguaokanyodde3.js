@@ -296,7 +296,7 @@ window.verifyPayment = async () => {
         if(btnSupport) {
             btnSupport.classList.remove('hidden');
             const mensajeWsp = `Soporte: Mi pago dio error.%0ARef: ${refInput}%0AMonto: ${document.getElementById('pay-amount').value}%0AError: ${detalle}`;
-            btnSupport.href = `https://wa.me/584220153364?text=${mensajeWsp}`;
+            btnSupport.href = `https://wa.me/584221773102?text=${mensajeWsp}`;
         }
     };
 

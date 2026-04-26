@@ -100,43 +100,69 @@ function renderBannerHoraLoca() {
     else banner.classList.add('hidden');
 }
 
-// 3. INTERCEPTAR COMPRAS (BLOQUEANDO GRATIS Y POR TRANSACCIÓN)
+// 3. INTERCEPTAR COMPRAS (CORREGIDO PARA EVITAR FALLOS DE SINCRONIZACIÓN)
 function interceptarCompras() {
+    // Si la función original aún no existe (problema de carga), reintentar en medio segundo
+    if (typeof window.confirmCurrentCard !== 'function' || typeof window.confirmTorneoPurchase !== 'function') {
+        setTimeout(interceptarCompras, 500);
+        return;
+    }
+
     // A. BINGO ESTELAR
-    const originalConfirmarBingo = window.confirmCurrentCard;
-    if (typeof originalConfirmarBingo === 'function' && !window.bingoInterceptado) {
+    if (!window.bingoInterceptado) {
+        const originalConfirmarBingo = window.confirmCurrentCard;
         window.confirmCurrentCard = async function() {
             const saldoAnterior = typeof userBalance !== 'undefined' ? userBalance : 0;
             
+            // Ejecutar la compra original
             await originalConfirmarBingo.apply(this, arguments);
             
-            const saldoActual = typeof userBalance !== 'undefined' ? userBalance : 0;
-            const gastoReal = saldoAnterior - saldoActual;
+            // SOLUCIÓN AL RETRASO: Esperamos que Firebase actualice el saldo localmente (máx 2.5 segs)
+            let intentos = 0;
+            const checker = setInterval(() => {
+                const saldoActual = typeof userBalance !== 'undefined' ? userBalance : 0;
+                const gastoReal = saldoAnterior - saldoActual;
 
-            // SOLO gira si la Hora Loca está activa Y gastó saldo real (Gasto > 0)
-            if (horaLocaState.activa && gastoReal > 0) {
-                setTimeout(() => {
-                    const modalExito = document.getElementById('purchase-success-modal');
-                    if (modalExito) modalExito.style.display = 'none';
-                    abrirModalPreparado();
-                }, 1000);
-            }
+                if (gastoReal > 0) {
+                    clearInterval(checker); // Detectó el gasto, paramos el reloj
+                    if (horaLocaState.activa) {
+                        const modalExito = document.getElementById('purchase-success-modal');
+                        if (modalExito) modalExito.style.display = 'none';
+                        setTimeout(() => abrirModalPreparado(), 500); // Pequeña pausa visual
+                    }
+                } else if (intentos >= 10) {
+                    // Si pasaron 2.5 segundos y el saldo no bajó, asumimos que fue con cartón gratis o error
+                    clearInterval(checker);
+                }
+                intentos++;
+            }, 250); // Revisa cada 250 milisegundos
         };
         window.bingoInterceptado = true;
     }
 
     // B. TORNEO EXPRESS
-    const originalConfirmarTorneo = window.confirmTorneoPurchase;
-    if (typeof originalConfirmarTorneo === 'function' && !window.torneoInterceptado) {
+    if (!window.torneoInterceptado) {
+        const originalConfirmarTorneo = window.confirmTorneoPurchase;
         window.confirmTorneoPurchase = async function() {
             const saldoAnterior = typeof userBalance !== 'undefined' ? userBalance : 0;
+            
             await originalConfirmarTorneo.apply(this, arguments);
-            const saldoActual = typeof userBalance !== 'undefined' ? userBalance : 0;
-            const gastoReal = saldoAnterior - saldoActual;
+            
+            let intentos = 0;
+            const checker = setInterval(() => {
+                const saldoActual = typeof userBalance !== 'undefined' ? userBalance : 0;
+                const gastoReal = saldoAnterior - saldoActual;
 
-            if (horaLocaState.activa && gastoReal > 0) {
-                setTimeout(() => { abrirModalPreparado(); }, 1500);
-            }
+                if (gastoReal > 0) {
+                    clearInterval(checker);
+                    if (horaLocaState.activa) {
+                        setTimeout(() => abrirModalPreparado(), 1000);
+                    }
+                } else if (intentos >= 10) {
+                    clearInterval(checker);
+                }
+                intentos++;
+            }, 250);
         };
         window.torneoInterceptado = true;
     }
